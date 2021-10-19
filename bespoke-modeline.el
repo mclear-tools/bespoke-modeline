@@ -177,7 +177,7 @@ Initial value is 3."
 (defcustom bespoke-modeline-cleaner nil
   "If t then show abbreviated mode symbol in modeline. Default is
 nil. To change the values of the major-mode symbols see the value
-of bespoke-mode-line-cleaner-alist"
+of bespoke-modeline-cleaner-alist"
   :group 'bespoke-modeline
   :type 'boolean)
 
@@ -193,32 +193,32 @@ of bespoke-mode-line-cleaner-alist"
   :type 'boolean)
 
 ;; Mode line symbols
-(defcustom bespoke-mode-line-gui-ro-symbol " ⨂ "
+(defcustom bespoke-modeline-gui-ro-symbol " ⨂ "
   "Modeline gui read-only symbol."
   :group 'bespoke-modeline
   :type 'string)
 
-(defcustom bespoke-mode-line-gui-mod-symbol " ⨀ "
+(defcustom bespoke-modeline-gui-mod-symbol " ⨀ "
   "Modeline gui modified symbol."
   :group 'bespoke-modeline
   :type 'string)
 
-(defcustom bespoke-mode-line-gui-rw-symbol " ◯ "
+(defcustom bespoke-modeline-gui-rw-symbol " ◯ "
   "Modeline gui read-write symbol."
   :group 'bespoke-modeline
   :type 'string)
 
-(defcustom bespoke-mode-line-tty-ro-symbol " RO "
+(defcustom bespoke-modeline-tty-ro-symbol " RO "
   "Modeline tty read-only symbol."
   :group 'bespoke-modeline
   :type 'string)
 
-(defcustom bespoke-mode-line-tty-mod-symbol " ** "
+(defcustom bespoke-modeline-tty-mod-symbol " ** "
   "Modeline tty modified symbol."
   :group 'bespoke-modeline
   :type 'string)
 
-(defcustom bespoke-mode-line-tty-rw-symbol " RW "
+(defcustom bespoke-modeline-tty-rw-symbol " RW "
   "Modeline tty read-write symbol."
   :group 'bespoke-modeline
   :type 'string)
@@ -231,36 +231,36 @@ of bespoke-mode-line-cleaner-alist"
 
 (require 'face-remap)
 
-(defface bespoke-visual-bell '((t (:underline "red3")))
-  "Face to use for the mode-line when `bespoke-themes-visual-bell-config' is used."
-  :group 'bespoke-themes)
+(defface bespoke-modeline-visual-bell '((t (:underline "red3")))
+  "Face to use for the mode-line when `bespoke-modeline-visual-bell-config' is used."
+  :group 'bespoke-modeline)
 
 ;;;###autoload
-(defun bespoke-themes-visual-bell-fn ()
+(defun bespoke-modeline-visual-bell-fn ()
   "Blink the mode-line red briefly. Set `ring-bell-function' to this to use it."
-  (let ((bespoke-themes--bell-cookie (face-remap-add-relative 'mode-line 'bespoke-visual-bell)))
+  (let ((bespoke-modeline--bell-cookie (face-remap-add-relative 'mode-line 'bespoke-visual-bell)))
     (force-mode-line-update)
     (run-with-timer 0.15 nil
                     (lambda (cookie buf)
                       (with-current-buffer buf
                         (face-remap-remove-relative cookie)
                         (force-mode-line-update)))
-                    bespoke-themes--bell-cookie
+                    bespoke-modeline--bell-cookie
                     (current-buffer))))
 
 ;;;###autoload
-(defun bespoke-themes-visual-bell-config ()
+(defun bespoke-modeline-visual-bell-config ()
   "Enable flashing the mode-line on error."
-  (setq ring-bell-function #'bespoke-themes-visual-bell-fn
+  (setq ring-bell-function #'bespoke-modeline-visual-bell-fn
         visible-bell t))
 
-(when bespoke-set-visual-bell
-  (bespoke-themes-visual-bell-config))
+(when bespoke-modeline-visual-bell
+  (bespoke-modeline-visual-bell-config))
 
 
 ;;;; Clean mode line
 ;; Source: https://www.masteringemacs.org/article/hiding-replacing-modeline-strings
-(defvar bespoke-mode-line-cleaner-alist
+(defvar bespoke-modeline-cleaner-alist
   `((dired-mode . "Dir")
     (emacs-lisp-mode . "EL")
     (fundamental-mode . "FL")
@@ -274,15 +274,15 @@ of bespoke-mode-line-cleaner-alist"
     (python-mode . "PY")
     (text-mode . "TX")
     )
-  "Alist for `bespoke/clean-mode-line'.
+  "Alist for `bespoke-modeline/clean-mode-line'.
 
 When you add a new element to the alist, keep in mind that you
 must pass the correct minor/major mode symbol and a string you
 want to use in the modeline *as substitute for* the original.")
 
-(defun bespoke/clean-mode-line ()
+(defun bespoke-modeline/clean-mode-line ()
   (interactive)
-  (cl-loop for cleaner in bespoke-mode-line-cleaner-alist
+  (cl-loop for cleaner in bespoke-modeline-cleaner-alist
            do (let* ((mode (car cleaner))
                      (mode-str (cdr cleaner))
                      (old-mode-str (cdr (assq mode minor-mode-alist))))
@@ -292,8 +292,8 @@ want to use in the modeline *as substitute for* the original.")
                 (when (eq mode major-mode)
                   (setq mode-name mode-str)))))
 
-(when bespoke-set-mode-line-cleaner
-  (add-hook 'after-change-major-mode-hook #'bespoke/clean-mode-line))
+(when bespoke-modeline-cleaner
+  (add-hook 'after-change-major-mode-hook #'bespoke-modeline/clean-mode-line))
 
 
 
@@ -339,7 +339,7 @@ want to use in the modeline *as substitute for* the original.")
 
 ;; Git diff in modeline
 ;; https://cocktailmake.github.io/posts/emacs-modeline-enhancement-for-git-diff/
-(when bespoke-set-git-diff-mode-line
+(when bespoke-modeline-git-diff-mode-line
   (defadvice vc-git-mode-line-string (after plus-minus (file) compile activate)
     "Show the information of git diff on modeline."
     (setq ad-return-value
@@ -382,36 +382,36 @@ want to use in the modeline *as substitute for* the original.")
          (space-up       +0.20)
          (space-down     -0.25)
          (prefix (if (display-graphic-p)
-                     (cond ((string= status bespoke-mode-line-gui-ro-symbol)
-                            (propertize (if (window-dedicated-p)" –– " bespoke-mode-line-gui-ro-symbol)
+                     (cond ((string= status bespoke-modeline-gui-ro-symbol)
+                            (propertize (if (window-dedicated-p)" –– " bespoke-modeline-gui-ro-symbol)
                                         'face (if active
                                                   'bespoke-modeline-active-status-RO
                                                 'bespoke-modeline-inactive-status-RO)))
-                           ((string= status bespoke-mode-line-gui-mod-symbol)
-                            (propertize (if (window-dedicated-p)" –– " bespoke-mode-line-gui-mod-symbol)
+                           ((string= status bespoke-modeline-gui-mod-symbol)
+                            (propertize (if (window-dedicated-p)" –– " bespoke-modeline-gui-mod-symbol)
                                         'face (if active
                                                   'bespoke-modeline-active-status-**
                                                 'bespoke-modeline-inactive-status-**)))
-                           ((string= status bespoke-mode-line-gui-rw-symbol)
-                            (propertize (if (window-dedicated-p) " –– " bespoke-mode-line-gui-rw-symbol)
+                           ((string= status bespoke-modeline-gui-rw-symbol)
+                            (propertize (if (window-dedicated-p) " –– " bespoke-modeline-gui-rw-symbol)
                                         'face (if active 'bespoke-modeline-active-status-RW
                                                 'bespoke-modeline-inactive-status-RW)))
                            (t (propertize status
                                           'face (if active 'bespoke-modeline-active-status-**
                                                   'bespoke-modeline-inactive-status-**))))
                    ;; TTY displays
-                   (cond ((string= status bespoke-mode-line-tty-ro-symbol)
-                          (propertize (if (window-dedicated-p)" -- " bespoke-mode-line-gui-ro-symbol)
+                   (cond ((string= status bespoke-modeline-tty-ro-symbol)
+                          (propertize (if (window-dedicated-p)" -- " bespoke-modeline-gui-ro-symbol)
                                       'face (if active
                                                 'bespoke-modeline-active-status-RO
                                               'bespoke-modeline-inactive-status-RO)))
-                         ((string= status bespoke-mode-line-tty-mod-symbol)
-                          (propertize (if (window-dedicated-p)" -- " bespoke-mode-line-gui-mod-symbol)
+                         ((string= status bespoke-modeline-tty-mod-symbol)
+                          (propertize (if (window-dedicated-p)" -- " bespoke-modeline-gui-mod-symbol)
                                       'face (if active
                                                 'bespoke-modeline-active-status-**
                                               'bespoke-modeline-inactive-status-**)))
-                         ((string= status bespoke-mode-line-tty-rw-symbol)
-                          (propertize (if (window-dedicated-p) " -- " bespoke-mode-line-gui-rw-symbol)
+                         ((string= status bespoke-modeline-tty-rw-symbol)
+                          (propertize (if (window-dedicated-p) " -- " bespoke-modeline-gui-rw-symbol)
                                       'face (if active 'bespoke-modeline-active-status-RW
                                               'bespoke-modeline-inactive-status-RW)))
                          (t (propertize status
@@ -451,7 +451,7 @@ modified (⨀)/(**), or read-write (◯)/(RW)"
   (let ((read-only   buffer-read-only)
         (modified    (and buffer-file-name (buffer-modified-p))))
     ;; Use status letters for TTY display
-    (cond (modified (if (display-graphic-p) bespoke-mode-line-gui-mod-symbol bespoke-mode-line-tty-mod-symbol)) (read-only (if (display-graphic-p) bespoke-mode-line-gui-ro-symbol bespoke-mode-line-tty-ro-symbol)) (t (if (display-graphic-p) bespoke-mode-line-gui-rw-symbol bespoke-mode-line-tty-rw-symbol)))))
+    (cond (modified (if (display-graphic-p) bespoke-modeline-gui-mod-symbol bespoke-modeline-tty-mod-symbol)) (read-only (if (display-graphic-p) bespoke-modeline-gui-ro-symbol bespoke-modeline-tty-ro-symbol)) (t (if (display-graphic-p) bespoke-modeline-gui-rw-symbol bespoke-modeline-tty-rw-symbol)))))
 
 ;;;; Default display
 
