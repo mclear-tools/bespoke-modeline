@@ -1,7 +1,7 @@
 ;;; bespoke-modeline.el -- custom mode line for bespoke theme  ;; -*- lexical-binding: t -*-
 ;; Copyright (C) 2020 Colin McLear
 ;; -------------------------------------------------------------------
-;; Authors: Colin McLear, Nicholas Rougier
+;; Authors: Colin McLear
 ;; -------------------------------------------------------------------
 ;; URL: https://github.com/mclear-tools/bespoke-modeline
 ;; -------------------------------------------------------------------
@@ -25,8 +25,8 @@
 ;; along with this program. If not, see <http://www.gnu.org/licenses/>
 ;; -------------------------------------------------------------------
 ;;; Commentary:
-;; A custom mode line for bespoke-theme
-;; This mode line originated as a fork of bespoke-emacs modeline.
+;; A bespoke modeline
+;; This mode line originated as a fork of the nano-emacs modeline.
 ;; See https://github.com/rougier/nano-emacs
 ;; https://github.com/rougier/nano-modeline
 ;; -------------------------------------------------------------------
@@ -54,8 +54,10 @@
 ;;
 ;; M-x: bespoke-modeline-mode
 ;;
+;; You may also toggle the modeline to the top or bottom using M-x: bespoke-modeline-toggle
 
 ;;; Code:
+;;;; Group
 (defgroup bespoke nil
   "Bespoke group"
   :group 'convenience)
@@ -79,11 +81,7 @@ Modeline is composed as:
   :group 'bespoke-modeline)
 
 
-(defcustom bespoke-modeline-position 'top
-  "Default position (top or bottom)"
-  :type '(choice (const :tag "Top"    top)
-                 (const :tag "Bottom" bottom))
-  :group 'bespoke-modeline)
+;;;; Faces
 
 (defface bespoke-modeline-active
   '((t (:inherit mode-line)))
@@ -91,12 +89,12 @@ Modeline is composed as:
   :group 'bespoke-modeline-active)
 
 (defface bespoke-modeline-active-name
-  '((t (:inherit (mode-line bold))))
+  '((t (:inherit (mode-line))))
   "Modeline face for active name element"
   :group 'bespoke-modeline-active)
 
 (defface bespoke-modeline-active-primary
-  '((t (:inherit mode-line)))
+  '((t (:inherit fringe)))
   "Modeline face for active primary element"
   :group 'bespoke-modeline-active)
 
@@ -160,6 +158,147 @@ Modeline is composed as:
   :type '(choice (const nil) function)
   :group 'bespoke-modeline)
 
+
+;;; Modeline Options
+(defcustom bespoke-modeline-position 'top
+  "Default modeline position (top or bottom)"
+  :type '(choice
+          (const :tag "Nil" nil)
+          (const :tag "Top"    top)
+          (const :tag "Bottom" bottom))
+  :group 'bespoke-modeline)
+
+(defcustom bespoke-modeline-size 3
+  "Set the size of the modeline as an integer
+Initial value is 3."
+  :group 'bespoke-modeline
+  :type 'integer)
+
+(defcustom bespoke-modeline-cleaner nil
+  "If t then show abbreviated mode symbol in modeline. Default is
+nil. To change the values of the major-mode symbols see the value
+of bespoke-mode-line-cleaner-alist"
+  :group 'bespoke-modeline
+  :type 'boolean)
+
+(defcustom bespoke-modeline-git-diff-mode-line t
+  "If t then show diff lines in modeline."
+  :group 'bespoke-modeline
+  :type 'boolean)
+
+;; Visual Bell
+(defcustom bespoke-modeline-visual-bell t
+  "If t then use bespoke-visual-bell."
+  :group 'bespoke-themes
+  :type 'boolean)
+
+;; Mode line symbols
+(defcustom bespoke-mode-line-gui-ro-symbol " ⨂ "
+  "Modeline gui read-only symbol."
+  :group 'bespoke-modeline
+  :type 'string)
+
+(defcustom bespoke-mode-line-gui-mod-symbol " ⨀ "
+  "Modeline gui modified symbol."
+  :group 'bespoke-modeline
+  :type 'string)
+
+(defcustom bespoke-mode-line-gui-rw-symbol " ◯ "
+  "Modeline gui read-write symbol."
+  :group 'bespoke-modeline
+  :type 'string)
+
+(defcustom bespoke-mode-line-tty-ro-symbol " RO "
+  "Modeline tty read-only symbol."
+  :group 'bespoke-modeline
+  :type 'string)
+
+(defcustom bespoke-mode-line-tty-mod-symbol " ** "
+  "Modeline tty modified symbol."
+  :group 'bespoke-modeline
+  :type 'string)
+
+(defcustom bespoke-mode-line-tty-rw-symbol " RW "
+  "Modeline tty read-write symbol."
+  :group 'bespoke-modeline
+  :type 'string)
+
+;;; Optional Functions
+
+;;;; Visual bell for mode line
+
+;; See https://github.com/hlissner/emacs-doom-themes for the idea
+
+(require 'face-remap)
+
+(defface bespoke-visual-bell '((t (:underline "red3")))
+  "Face to use for the mode-line when `bespoke-themes-visual-bell-config' is used."
+  :group 'bespoke-themes)
+
+;;;###autoload
+(defun bespoke-themes-visual-bell-fn ()
+  "Blink the mode-line red briefly. Set `ring-bell-function' to this to use it."
+  (let ((bespoke-themes--bell-cookie (face-remap-add-relative 'mode-line 'bespoke-visual-bell)))
+    (force-mode-line-update)
+    (run-with-timer 0.15 nil
+                    (lambda (cookie buf)
+                      (with-current-buffer buf
+                        (face-remap-remove-relative cookie)
+                        (force-mode-line-update)))
+                    bespoke-themes--bell-cookie
+                    (current-buffer))))
+
+;;;###autoload
+(defun bespoke-themes-visual-bell-config ()
+  "Enable flashing the mode-line on error."
+  (setq ring-bell-function #'bespoke-themes-visual-bell-fn
+        visible-bell t))
+
+(when bespoke-set-visual-bell
+  (bespoke-themes-visual-bell-config))
+
+
+;;;; Clean mode line
+;; Source: https://www.masteringemacs.org/article/hiding-replacing-modeline-strings
+(defvar bespoke-mode-line-cleaner-alist
+  `((dired-mode . "Dir")
+    (emacs-lisp-mode . "EL")
+    (fundamental-mode . "FL")
+    (helpful-mode . "")
+    (help-mode . "")
+    (lisp-interaction-mode . "λ")
+    (markdown-mode . "MD")
+    (magit-mode . "MG")
+    (nxhtml-mode . "NX")
+    (prog-mode . "PR")
+    (python-mode . "PY")
+    (text-mode . "TX")
+    )
+  "Alist for `bespoke/clean-mode-line'.
+
+When you add a new element to the alist, keep in mind that you
+must pass the correct minor/major mode symbol and a string you
+want to use in the modeline *as substitute for* the original.")
+
+(defun bespoke/clean-mode-line ()
+  (interactive)
+  (cl-loop for cleaner in bespoke-mode-line-cleaner-alist
+           do (let* ((mode (car cleaner))
+                     (mode-str (cdr cleaner))
+                     (old-mode-str (cdr (assq mode minor-mode-alist))))
+                (when old-mode-str
+                  (setcar old-mode-str mode-str))
+                ;; major mode
+                (when (eq mode major-mode)
+                  (setq mode-name mode-str)))))
+
+(when bespoke-set-mode-line-cleaner
+  (add-hook 'after-change-major-mode-hook #'bespoke/clean-mode-line))
+
+
+
+;;; Modeline Functions
+;;;; Base Functions
 (defun bespoke-modeline-user-mode-p ()
   "Should the user supplied mode be called for modeline?"
   bespoke-modeline-user-mode)
@@ -172,16 +311,50 @@ Modeline is composed as:
         (format "%s%s" (substring str 0 (- size (length ellipsis))) ellipsis)
       str)))
 
-(defun bespoke-modeline-vc-branch ()
-  "Return current VC branch if any."
-  (if vc-mode
-      (let ((backend (vc-backend buffer-file-name)))
-        (concat "#" (substring-no-properties vc-mode
-                                 (+ (if (eq backend 'Hg) 2 3) 2))))  nil))
-
 (defun bespoke-modeline-mode-name ()
   "Return current major mode name"
   (format-mode-line mode-name))
+
+;;;; Branch display
+;; -------------------------------------------------------------------
+(defun bespoke-modeline-vc-project-branch ()
+  "Show project and branch name"
+  (let ((backend (vc-backend buffer-file-name)))
+    (when buffer-file-name
+      (concat
+       (if (bound-and-true-p projectile-mode)
+           (let ((project-name (projectile-project-name)))
+             ;; Project name
+             (unless (string= "-" project-name)
+               (concat
+                ;; Divider
+                (propertize " •" 'face `(:inherit fringe))
+                (format " %s" project-name))))
+         " ")
+       ;; Show branch
+       (if vc-mode
+           (concat
+            "" (substring-no-properties vc-mode ;    
+                                         (+ (if (eq backend 'Hg) 2 3) 2)))  nil)))))
+
+;; Git diff in modeline
+;; https://cocktailmake.github.io/posts/emacs-modeline-enhancement-for-git-diff/
+(when bespoke-set-git-diff-mode-line
+  (defadvice vc-git-mode-line-string (after plus-minus (file) compile activate)
+    "Show the information of git diff on modeline."
+    (setq ad-return-value
+	      (concat ad-return-value
+		          (let ((plus-minus (vc-git--run-command-string
+				                     file "diff" "--numstat" "--")))
+		            (if (and plus-minus
+		                     (string-match "^\\([0-9]+\\)\t\\([0-9]+\\)\t" plus-minus))
+		                (concat
+                         " "
+			             (format "+%s" (match-string 1 plus-minus))
+			             (format "-%s" (match-string 2 plus-minus)))
+		              (propertize "" 'face '(:weight bold))))))))
+
+;;;; Dir display
 
 
 ;; From https://amitp.blogspot.com/2011/08/emacs-custom-mode-line.html
@@ -198,6 +371,8 @@ Modeline is composed as:
       (setq output (concat "…/" output)))
     output))
 
+;;;; Compose mode line
+;; -------------------------------------------------------------------
 
 (defun bespoke-modeline-compose (status name primary secondary)
   "Compose a string with provided information"
@@ -206,23 +381,43 @@ Modeline is composed as:
          (active        (eq window bespoke-modeline--selected-window))
          (space-up       +0.20)
          (space-down     -0.25)
-         (prefix (cond ((string= status "RO")
-                        (propertize (if (window-dedicated-p)"•RO " " RO ")
-                                    'face (if active
-                                              'bespoke-modeline-active-status-RO
-                                            'bespoke-modeline-inactive-status-RO)))
-                       ((string= status "**")
-                        (propertize (if (window-dedicated-p)"•** " " ** ")
-                                    'face (if active
-                                              'bespoke-modeline-active-status-**
-                                            'bespoke-modeline-inactive-status-**)))
-                       ((string= status "RW")
-                        (propertize (if (window-dedicated-p) "•RW " " RW ")
-                                    'face (if active 'bespoke-modeline-active-status-RW
-                                            'bespoke-modeline-inactive-status-RW)))
-                       (t (propertize status
-                                      'face (if active 'bespoke-modeline-active-status-**
-                                              'bespoke-modeline-inactive-status-**)))))
+         (prefix (if (display-graphic-p)
+                     (cond ((string= status bespoke-mode-line-gui-ro-symbol)
+                            (propertize (if (window-dedicated-p)" –– " bespoke-mode-line-gui-ro-symbol)
+                                        'face (if active
+                                                  'bespoke-modeline-active-status-RO
+                                                'bespoke-modeline-inactive-status-RO)))
+                           ((string= status bespoke-mode-line-gui-mod-symbol)
+                            (propertize (if (window-dedicated-p)" –– " bespoke-mode-line-gui-mod-symbol)
+                                        'face (if active
+                                                  'bespoke-modeline-active-status-**
+                                                'bespoke-modeline-inactive-status-**)))
+                           ((string= status bespoke-mode-line-gui-rw-symbol)
+                            (propertize (if (window-dedicated-p) " –– " bespoke-mode-line-gui-rw-symbol)
+                                        'face (if active 'bespoke-modeline-active-status-RW
+                                                'bespoke-modeline-inactive-status-RW)))
+                           (t (propertize status
+                                          'face (if active 'bespoke-modeline-active-status-**
+                                                  'bespoke-modeline-inactive-status-**))))
+                   ;; TTY displays
+                   (cond ((string= status bespoke-mode-line-tty-ro-symbol)
+                          (propertize (if (window-dedicated-p)" -- " bespoke-mode-line-gui-ro-symbol)
+                                      'face (if active
+                                                'bespoke-modeline-active-status-RO
+                                              'bespoke-modeline-inactive-status-RO)))
+                         ((string= status bespoke-mode-line-tty-mod-symbol)
+                          (propertize (if (window-dedicated-p)" -- " bespoke-mode-line-gui-mod-symbol)
+                                      'face (if active
+                                                'bespoke-modeline-active-status-**
+                                              'bespoke-modeline-inactive-status-**)))
+                         ((string= status bespoke-mode-line-tty-rw-symbol)
+                          (propertize (if (window-dedicated-p) " -- " bespoke-mode-line-gui-rw-symbol)
+                                      'face (if active 'bespoke-modeline-active-status-RW
+                                              'bespoke-modeline-inactive-status-RW)))
+                         (t (propertize status
+                                        'face (if active 'bespoke-modeline-active-status-**
+                                                'bespoke-modeline-inactive-status-**))))))
+
          (left (concat
                 (propertize " "  'face (if active 'bespoke-modeline-active
                                          'bespoke-modeline-inactive)
@@ -235,11 +430,11 @@ Modeline is composed as:
                 (propertize primary 'face (if active 'bespoke-modeline-active-primary
                                             'bespoke-modeline-inactive-primary))))
          (right (concat secondary " "))
-         
-         (available-width (- (window-total-width) 
+
+         (available-width (- (window-total-width)
                              (length prefix) (length left) (length right)
                              (/ (window-right-divider-width) char-width)))
-     (available-width (max 1 available-width)))
+         (available-width (max 1 available-width)))
     (concat prefix
             left
             (propertize (make-string available-width ?\ )
@@ -248,29 +443,308 @@ Modeline is composed as:
             (propertize right 'face (if active 'bespoke-modeline-active-secondary
                                       'bespoke-modeline-inactive-secondary)))))
 
+;;;; Mode line status
+;; ---------------------------------------------------------------------
+(defun bespoke-modeline-status ()
+  "Return buffer status: default symbols are read-only (⨂)/(RO),
+modified (⨀)/(**), or read-write (◯)/(RW)"
+  (let ((read-only   buffer-read-only)
+        (modified    (and buffer-file-name (buffer-modified-p))))
+    ;; Use status letters for TTY display
+    (cond (modified (if (display-graphic-p) bespoke-mode-line-gui-mod-symbol bespoke-mode-line-tty-mod-symbol)) (read-only (if (display-graphic-p) bespoke-mode-line-gui-ro-symbol bespoke-mode-line-tty-ro-symbol)) (t (if (display-graphic-p) bespoke-mode-line-gui-rw-symbol bespoke-mode-line-tty-rw-symbol)))))
+
+;;;; Default display
+
+(defun bespoke-modeline-default-mode ()
+  (let ((buffer-name (format-mode-line (if buffer-file-name (file-name-nondirectory (buffer-file-name)) "%b")))
+        (mode-name   (bespoke-modeline-mode-name))
+        (branch      (bespoke-modeline-vc-project-branch))
+        (position    (format-mode-line "%l:%c ")))
+    (bespoke-modeline-compose (bespoke-modeline-status)
+                              buffer-name
+                              (concat "(" mode-name
+                                      (when branch
+                                        branch)
+                                      ")")
+                              (concat
+                               ;; Narrowed buffer
+                               (when (buffer-narrowed-p)
+                                 (propertize "⇥ "  'face `(:inherit fringe)))
+                               position))))
+
+;;;; Prog & Text Modes
+;; ---------------------------------------------------------------------
+(defun bespoke-modeline-prog-mode-p ()
+  (derived-mode-p 'prog-mode))
+
+(defun bespoke-modeline-elisp-mode-p ()
+  (derived-mode-p 'lisp-data-mode))
+
+(defun bespoke-modeline-text-mode-p ()
+  (derived-mode-p 'text-mode))
+
+;;;; Info Display
+;; ---------------------------------------------------------------------
+(setq Info-use-header-line nil)
+(defun bespoke-modeline-info-breadcrumbs ()
+  (let ((nodes (Info-toc-nodes Info-current-file))
+        (cnode Info-current-node)
+	    (node Info-current-node)
+        (crumbs ())
+        (depth Info-breadcrumbs-depth)
+	    line)
+    (while  (> depth 0)
+      (setq node (nth 1 (assoc node nodes)))
+      (if node (push node crumbs))
+      (setq depth (1- depth)))
+    (setq crumbs (cons "Top" (if (member (pop crumbs) '(nil "Top"))
+			                     crumbs (cons nil crumbs))))
+    (forward-line 1)
+    (dolist (node crumbs)
+      (let ((text
+	         (if (not (equal node "Top")) node
+	           (format "%s"
+		               (if (stringp Info-current-file)
+			               (file-name-sans-extension
+			                (file-name-nondirectory Info-current-file))
+			             Info-current-file)))))
+	    (setq line (concat line (if (null line) "" " > ")
+                           (if (null node) "..." text)))))
+    (if (and cnode (not (equal cnode "Top")))
+        (setq line (concat line (if (null line) "" " > ") cnode)))
+    line))
+
+(defun bespoke-modeline-info-mode-p ()
+  (derived-mode-p 'Info-mode))
+
+(defun bespoke-modeline-info-mode ()
+  (bespoke-modeline-compose (bespoke-modeline-status)
+                            "Info"
+                            (concat "("
+                                    (bespoke-modeline-info-breadcrumbs)
+                                    ")")
+                            ""))
+
+;;;; Term & Vterm
+;; ---------------------------------------------------------------------
+(defun bespoke-modeline-term-mode-p ()
+  (derived-mode-p 'term-mode))
+
+(defun bespoke-modeline-term-mode ()
+  (bespoke-modeline-compose " >_ "
+                            "Terminal"
+                            (concat "(" shell-file-name ")")
+                            (shorten-directory default-directory 32)))
 
 ;; ---------------------------------------------------------------------
-(defun bespoke-modeline-ein-notebook-mode ()
-  (let ((buffer-name (format-mode-line "%b")))
-    (bespoke-modeline-compose (if (ein:notebook-modified-p) "**" "RW")
-                           buffer-name
-                           ""
-                           (ein:header-line))))
+;; vterm
+(defun bespoke-modeline-vterm-mode-p ()
+  (derived-mode-p 'vterm-mode))
 
+(defun bespoke-modeline-get-ssh-host (_str)
+  (let ((split-defdir (split-string default-directory)))
+    (if (equal (length split-defdir) 1)
+        (car (split-string (shell-command-to-string "hostname") "\n"))
+      (cadr split-defdir))))
+
+(defun bespoke-modeline-vterm-mode ()
+  (bespoke-modeline-compose " >_ "
+                            "Terminal"
+                            (concat "(" (bespoke-modeline-get-ssh-host default-directory) ")")
+                            (shorten-directory (car (last (split-string default-directory ":"))) 32)))
+
+;;;; Message Mode
 ;; ---------------------------------------------------------------------
+(defun bespoke-modeline-message-mode-p ()
+  (derived-mode-p 'message-mode))
+
+(defun bespoke-modeline-message-mode ()
+  (bespoke-modeline-compose (bespoke-modeline-status)
+                            "Message" "(draft)" ""))
+
+;;;; Docview Mode
+;;---------------------------------------------------------------------
+(defun bespoke-modeline-docview-mode-p ()
+  (derived-mode-p 'doc-view-mode))
+
+(defun bespoke-modeline-docview-mode ()
+  (let ((buffer-name (format-mode-line "%b"))
+	    (mode-name   (bespoke-modeline-mode-name))
+	    (branch      (bespoke-modeline-vc-project-branch))
+	    (page-number (concat
+		              (number-to-string (doc-view-current-page)) "/"
+		              (or (ignore-errors
+			                (number-to-string (doc-view-last-page-number)))
+			              "???"))))
+    (bespoke-modeline-compose
+     (bespoke-modeline-status)
+     buffer-name
+     (concat "(" mode-name
+             branch
+	         ")" )
+     page-number)))
+
+;;;; PDF View Mode
+;; ---------------------------------------------------------------------
+(defun bespoke-modeline-pdf-view-mode-p ()
+  (derived-mode-p 'pdf-view-mode))
+
+(defun bespoke-modeline-pdf-view-mode ()
+  (let ((buffer-name (format-mode-line "%b"))
+	    (mode-name   (bespoke-modeline-mode-name))
+	    (branch      (bespoke-modeline-vc-project-branch))
+	    (page-number (concat
+		              (number-to-string (pdf-view-current-page)) "/"
+		              (or (ignore-errors
+			                (number-to-string (pdf-cache-number-of-pages)))
+			              "???"))))
+    (bespoke-modeline-compose
+     (bespoke-modeline-status)
+     buffer-name
+     (concat "(" mode-name
+             branch
+	         ")" )
+     (concat page-number " "))))
+
+;;;; MenuMode
+
+(defun bespoke-modeline-buffer-menu-mode-p ()
+  (derived-mode-p 'buffer-menu-mode))
+
+(defun bespoke-modeline-buffer-menu-mode ()
+  (let ((buffer-name "Buffer list")
+        (mode-name   (bespoke-modeline-mode-name))
+        (position    (format-mode-line "%l:%c")))
+
+    (bespoke-modeline-compose (bespoke-modeline-status)
+                              buffer-name "" position)))
+
+
+;;;; Completion
+;; ---------------------------------------------------------------------
+(defun bespoke-modeline-completion-list-mode-p ()
+  (derived-mode-p 'completion-list-mode))
+
+(defun bespoke-modeline-completion-list-mode ()
+  (let ((buffer-name (format-mode-line "%b"))
+        (mode-name   (bespoke-modeline-mode-name))
+        (position    (format-mode-line "%l:%c ")))
+
+    (bespoke-modeline-compose (bespoke-modeline-status)
+                              buffer-name "" position)))
+
+;;;; Deft Mode
+
+(with-eval-after-load 'deft
+  (defun deft-print-header ()
+    (force-mode-line-update)
+    (widget-insert "\n")))
+
+(defun bespoke-modeline-deft-mode-p ()
+  (derived-mode-p 'deft-mode))
+
+(defun bespoke-modeline-deft-mode ()
+  (let ((prefix " DEFT ")
+        (primary "Search:")
+        (filter  (if deft-filter-regexp
+                     (deft-whole-filter-regexp) "<filter>"))
+        (matches (if deft-filter-regexp
+                     (format "%d matches" (length deft-current-files))
+                   (format "%d notes" (length deft-all-files)))))
+    (bespoke-modeline-compose prefix primary filter matches)))
+
+;;;; Calendar Mode
+;; ---------------------------------------------------------------------
+(defun bespoke-modeline-calendar-mode-p ()
+  (derived-mode-p 'calendar-mode))
+
+(defun bespoke-modeline-calendar-mode () "")
+
+;; Calendar (no header, only overline)
+(with-eval-after-load 'calendar
+  (defun calendar-setup-header ()
+    (setq header-line-format "")
+    (face-remap-add-relative
+     'header-line `(:overline ,(face-foreground 'default)
+                    :height 0.5
+                    :background ,(face-background 'default)))))
+(add-hook 'calendar-initial-window-hook #'calendar-setup-header)
+
+;;;; Org Capture
+;; ---------------------------------------------------------------------
+(defun bespoke-modeline-org-capture-mode-p ()
+  (bound-and-true-p org-capture-mode))
+
+(defun bespoke-modeline-org-capture-mode ()
+  (bespoke-modeline-compose (bespoke-modeline-status)
+                            "Capture"
+                            "(Org)"
+                            ""))
+
+(with-eval-after-load 'org-capture
+  (defun org-capture-turn-off-header-line ()
+    (setq-local header-line-format (default-value 'header-line-format))
+    (message nil))
+  (add-hook 'org-capture-mode-hook
+            #'org-capture-turn-off-header-line))
+
+;;;; Org Agenda
+;; ---------------------------------------------------------------------
+(defun bespoke-modeline-org-agenda-mode-p ()
+  (derived-mode-p 'org-agenda-mode))
+
+(defun bespoke-modeline-org-agenda-mode ()
+  (bespoke-modeline-compose (bespoke-modeline-status)
+                            "Agenda"
+                            ""
+                            (concat (propertize "◴"
+                                                'face 'default
+                                                'display '(raise 0.06))
+                                    (format-time-string "%H:%M "))))
+
+;;;; Org Clock
+;; ---------------------------------------------------------------------
+(with-eval-after-load 'org-clock
+  (add-hook 'org-clock-out-hook #'bespoke-modeline-org-clock-out))
+
+(defun bespoke-modeline-org-clock-out ()
+  (setq org-mode-line-string nil)
+  (force-mode-line-update))
+
+(defun bespoke-modeline-org-clock-mode-p ()
+  (and (boundp 'org-mode-line-string)
+       (not org-mode-line-string)))
+
+(defun bespoke-modeline-org-clock-mode ()
+  (let ((buffer-name (format-mode-line "%b"))
+        (mode-name   (bespoke-modeline-mode-name))
+        (branch      (bespoke-modeline-vc-project-branch)))
+    (bespoke-modeline-compose (bespoke-modeline-status)
+                              buffer-name
+                              (concat "(" mode-name
+                                      (when branch
+                                        branch)
+                                      ")")
+                              (concat
+                               ;; Narrowed buffer
+                               (when (buffer-narrowed-p)
+                                 (propertize "⇥ "  'face `(:inherit fringe)))
+                               org-mode-line-string))))
+
+
+;;;; Elfeed
 (defun bespoke-modeline-elfeed-search-mode-p ()
   (derived-mode-p 'elfeed-search-mode))
 
 (defun bespoke-modeline-elfeed-search-mode ()
   (bespoke-modeline-compose (bespoke-modeline-status)
-                         "Elfeed"
-                         (concat "(" (elfeed-search--header)  ")")
-                         ""))
+                            "Elfeed"
+                            (concat "(" (elfeed-search--header)  ")")
+                            ""))
 
 (defun bespoke-modeline-elfeed-setup-header ()
   (setq header-line-format (default-value 'header-line-format)))
 
-;; ---------------------------------------------------------------------
 (defun bespoke-modeline-elfeed-show-mode-p ()
   (derived-mode-p 'elfeed-show-mode))
 
@@ -283,108 +757,12 @@ Modeline is composed as:
          (feed-title   (plist-get (elfeed-feed-meta feed) :title))
          (entry-author (elfeed-meta elfeed-show-entry :author)))
     (bespoke-modeline-compose (bespoke-modeline-status)
-                           (bespoke-modeline-truncate title 40)
-                           (concat "(" tags-str ")")
-                           feed-title)))
+                              (bespoke-modeline-truncate title 40)
+                              (concat "(" tags-str ")")
+                              feed-title)))
 
-;; ---------------------------------------------------------------------
-(defun bespoke-modeline-calendar-mode-p ()
-  (derived-mode-p 'calendar-mode))
+;;;; Mu4e
 
-(defun bespoke-modeline-calendar-mode () "")
-
-;; Calendar (no header, only overline)
-(defun bespoke-modeline-calendar-setup-header ()
-  (setq header-line-format "")
-  (face-remap-add-relative
-   'header-line `(:overline ,(face-foreground 'default)
-                            :height 0.5
-                            :background ,(face-background 'default))))
-
-;; From https://emacs.stackexchange.com/questions/45650
-;; (add-to-list 'display-buffer-alist
-;;              `(,(rx string-start "*Calendar*" string-end)
-;;               (display-buffer-below-selected)))
-
-;; ---------------------------------------------------------------------
-(defun bespoke-modeline-org-capture-mode-p ()
-  (bound-and-true-p org-capture-mode))
-
-(defun bespoke-modeline-org-capture-mode ()
-  (bespoke-modeline-compose (bespoke-modeline-status)
-                         "Capture"
-                         "(org)"
-                         ""))
-
-(defun bespoke-modeline-org-capture-turn-off-header-line ()
-  (setq-local header-line-format (default-value 'header-line-format))
-  (message nil))
-
-;; ---------------------------------------------------------------------
-(defun bespoke-modeline-info-breadcrumbs ()
-  (let ((nodes (Info-toc-nodes Info-current-file))
-        (cnode Info-current-node)
-    (node Info-current-node)
-        (crumbs ())
-        (depth Info-breadcrumbs-depth)
-    line)
-    (while  (> depth 0)
-      (setq node (nth 1 (assoc node nodes)))
-      (if node (push node crumbs))
-      (setq depth (1- depth)))
-    (setq crumbs (cons "Top" (if (member (pop crumbs) '(nil "Top"))
-                     crumbs (cons nil crumbs))))
-    (forward-line 1)
-    (dolist (node crumbs)
-      (let ((text
-         (if (not (equal node "Top")) node
-           (format "%s"
-               (if (stringp Info-current-file)
-               (file-name-sans-extension
-                (file-name-nondirectory Info-current-file))
-             Info-current-file)))))
-    (setq line (concat line (if (null line) "" " > ")
-                                (if (null node) "..." text)))))
-    (if (and cnode (not (equal cnode "Top")))
-        (setq line (concat line (if (null line) "" " > ") cnode)))
-    line))
-
-(defun bespoke-modeline-info-mode-p ()
-  (derived-mode-p 'Info-mode))
-
-(defun bespoke-modeline-info-mode ()
-  (bespoke-modeline-compose (bespoke-modeline-status)
-                         "Info"
-                         (concat "("
-                                 (bespoke-modeline-info-breadcrumbs)
-                                 ")")
-                         ""))
-
-;; ---------------------------------------------------------------------
-(defun bespoke-modeline-org-agenda-mode-p ()
-  (derived-mode-p 'org-agenda-mode))
-
-(defun bespoke-modeline-org-agenda-mode ()
-  (bespoke-modeline-compose (bespoke-modeline-status)
-                         "Agenda"
-                         ""
-                         (format-time-string "%A %-e %B %Y")))
-
-;; ---------------------------------------------------------------------
-(defun bespoke-modeline-term-mode-p ()
-  (derived-mode-p 'term-mode))
-
-(defun bespoke-modeline-vterm-mode-p ()
-  (derived-mode-p 'vterm-mode))
-
-(defun bespoke-modeline-term-mode ()
-  (bespoke-modeline-compose " >_ "
-                         "Terminal"
-                         (concat "(" shell-file-name ")")
-                         (bespoke-modeline-shorten-directory default-directory 32)))
-
-
-;; ---------------------------------------------------------------------
 (defun bespoke-modeline-mu4e-last-query ()
   "Get the most recent mu4e query or nil if there is none."
   (if (fboundp 'mu4e-last-query)
@@ -411,9 +789,9 @@ depending on the version of mu4e."
 
 (defun bespoke-modeline-mu4e-dashboard-mode ()
   (bespoke-modeline-compose (bespoke-modeline-status)
-                         "Mail"
-                         (bespoke-modeline-mu4e-context)
-                         (format "%d messages" (plist-get (bespoke-modeline-mu4e-server-props) :doccount))))
+                            "Mail"
+                            (bespoke-modeline-mu4e-context)
+                            (format "%d messages" (plist-get (bespoke-modeline-mu4e-server-props) :doccount))))
 
 ;; ---------------------------------------------------------------------
 (defun bespoke-modeline-mu4e-loading-mode-p ()
@@ -421,9 +799,9 @@ depending on the version of mu4e."
 
 (defun bespoke-modeline-mu4e-loading-mode ()
   (bespoke-modeline-compose (bespoke-modeline-status)
-                         "Mail"
-                         (bespoke-modeline-mu4e-context)
-                         (format-time-string "%A %d %B %Y, %H:%M")))
+                            "Mail"
+                            (bespoke-modeline-mu4e-context)
+                            (format-time-string "%A %d %B %Y, %H:%M")))
 
 ;; ---------------------------------------------------------------------
 (defun bespoke-modeline-mu4e-main-mode-p ()
@@ -431,9 +809,9 @@ depending on the version of mu4e."
 
 (defun bespoke-modeline-mu4e-main-mode ()
   (bespoke-modeline-compose (bespoke-modeline-status)
-                         "Mail"
-                         (bespoke-modeline-mu4e-context)
-                         (format-time-string "%A %d %B %Y, %H:%M")))
+                            "Mail"
+                            (bespoke-modeline-mu4e-context)
+                            (format-time-string "%A %d %B %Y, %H:%M")))
 
 ;; ---------------------------------------------------------------------
 (defun bespoke-modeline-mu4e-quote (str)
@@ -447,11 +825,11 @@ depending on the version of mu4e."
 (defun bespoke-modeline-mu4e-headers-mode ()
   (let ((mu4e-modeline-max-width 80))
     (bespoke-modeline-compose (bespoke-modeline-status)
-                           (bespoke-modeline-mu4e-quote (bespoke-modeline-mu4e-last-query))
-                           ""
-                           (format "[%s]"
-                                   (bespoke-modeline-mu4e-quote
-                                    (mu4e-context-name (mu4e-context-current)))))))
+                              (bespoke-modeline-mu4e-quote (bespoke-modeline-mu4e-last-query))
+                              ""
+                              (format "[%s]"
+                                      (bespoke-modeline-mu4e-quote
+                                       (mu4e-context-name (mu4e-context-current)))))))
 
 ;; ---------------------------------------------------------------------
 (defun bespoke-modeline-mu4e-view-mode-p ()
@@ -463,186 +841,43 @@ depending on the version of mu4e."
          (from    (mu4e~headers-contact-str (mu4e-message-field msg :from)))
          (date     (mu4e-message-field msg :date)))
     (bespoke-modeline-compose (bespoke-modeline-status)
-                           (bespoke-modeline-truncate subject 60)
-                           ""
-                           from)))
+                              (bespoke-modeline-truncate subject 60)
+                              ""
+                              from)))
 
 (defun bespoke-modeline-mu4e-view-hook ()
   (setq header-line-format "%-")
   (face-remap-add-relative 'header-line
                            '(:background "#ffffff"
-                                         :underline nil
-                                         :box nil
-                                         :height 1.0)))
+                             :underline nil
+                             :box nil
+                             :height 1.0)))
 ;; (add-hook 'mu4e-view-mode-hook #'bespoke-modeline-mu4e-view-hook)
 
+;;;; Help
 
-;; ---------------------------------------------------------------------
 (defun bespoke-modeline-bespoke-help-mode-p ()
   (derived-mode-p 'bespoke-help-mode))
 
 (defun bespoke-modeline-bespoke-help-mode ()
   (bespoke-modeline-compose (bespoke-modeline-status)
-                         "GNU Emacs / N Λ N O"
-                         "(help)"
-                         ""))
+                            "GNU Emacs"
+                            "(help)"
+                            ""))
 
-;; ---------------------------------------------------------------------
-(defun bespoke-modeline-message-mode-p ()
-  (derived-mode-p 'message-mode))
+;;;; Ein
 
-(defun bespoke-modeline-message-mode ()
-  (bespoke-modeline-compose (bespoke-modeline-status)
-                         "Message" "(draft)" ""))
+(defun bespoke-modeline-ein-notebook-mode ()
+  (let ((buffer-name (format-mode-line "%b")))
+    (bespoke-modeline-compose (if (ein:notebook-modified-p) "**" "RW")
+                              buffer-name
+                              ""
+                              (ein:header-line))))
 
-;; ---------------------------------------------------------------------
-;; (defvar org-mode-line-string nil)
-(with-eval-after-load 'org-clock
-  (add-hook 'org-clock-out-hook #'bespoke-modeline-org-clock-out))
+;;; Set Mode line
 
-(defun bespoke-modeline-org-clock-out ()
-  (setq org-mode-line-string nil)
-  (force-mode-line-update))
+;;;; Clear Modeline Faces
 
-(defun bespoke-modeline-org-clock-mode-p ()
-  (and (boundp 'org-mode-line-string)
-       (not org-mode-line-string)))
-
-(defun bespoke-modeline-org-clock-mode ()
-    (let ((buffer-name (format-mode-line "%b"))
-          (mode-name   (bespoke-modeline-mode-name))
-          (branch      (bespoke-modeline-vc-branch))
-          (position    (format-mode-line "%l:%c")))
-      (bespoke-modeline-compose (bespoke-modeline-status)
-                             buffer-name 
-                             (concat "(" mode-name
-                                     (if branch (concat ", "
-                                             (propertize branch 'face 'italic)))
-                                     ")" )
-                             org-mode-line-string)))
-
-;; ---------------------------------------------------------------------
-(defun bespoke-modeline-docview-mode-p ()
-  (derived-mode-p 'doc-view-mode))
-
-(defun bespoke-modeline-docview-mode ()
-  (let ((buffer-name (format-mode-line "%b"))
-    (mode-name   (bespoke-modeline-mode-name))
-    (branch      (bespoke-modeline-vc-branch))
-    (page-number (concat
-              (number-to-string (doc-view-current-page)) "/"
-              (or (ignore-errors
-                (number-to-string (doc-view-last-page-number)))
-              "???"))))
-    (bespoke-modeline-compose
-     (bespoke-modeline-status)
-     buffer-name
-     (concat "(" mode-name
-         (if branch (concat ", "
-                (propertize branch 'face 'italic)))
-         ")" )
-     page-number)))
-
-;; ---------------------------------------------------------------------
-(defun bespoke-modeline-pdf-view-mode-p ()
-  (derived-mode-p 'pdf-view-mode))
-
-(defun bespoke-modeline-pdf-view-mode ()
-  (let ((buffer-name (format-mode-line "%b"))
-    (mode-name   (bespoke-modeline-mode-name))
-    (branch      (bespoke-modeline-vc-branch))
-    (page-number (concat
-              (number-to-string (pdf-view-current-page)) "/"
-              (or (ignore-errors
-                (number-to-string (pdf-cache-number-of-pages)))
-              "???"))))
-    (bespoke-modeline-compose
-     "RW"
-     buffer-name
-     (concat "(" mode-name
-         (if branch (concat ", "
-                (propertize branch 'face 'italic)))
-         ")" )
-     page-number)))
-
-;; ---------------------------------------------------------------------
-(defun bespoke-modeline-buffer-menu-mode-p ()
-  (derived-mode-p 'buffer-menu-mode))
-
-(defun bespoke-modeline-buffer-menu-mode ()
-    (let ((buffer-name "Buffer list")
-          (mode-name   (bespoke-modeline-mode-name))
-          (position    (format-mode-line "%l:%c")))
-
-      (bespoke-modeline-compose (bespoke-modeline-status)
-                             buffer-name "" position)))
-;;(defun buffer-menu-mode-header-line ()
-;;  (face-remap-add-relative
-;;   'header-line `(:background ,(face-background 'bespoke-subtle))))
-;;(add-hook 'Buffer-menu-mode-hook
-;;          #'buffer-menu-mode-header-line)
-
-;; ---------------------------------------------------------------------
-(defun bespoke-modeline-completion-list-mode-p ()
-  (derived-mode-p 'completion-list-mode))
-
-(defun bespoke-modeline-completion-list-mode ()
-    (let ((buffer-name (format-mode-line "%b"))
-          (mode-name   (bespoke-modeline-mode-name))
-          (position    (format-mode-line "%l:%c")))
-
-      (bespoke-modeline-compose (bespoke-modeline-status)
-                             buffer-name "" position)))
-
-;; ---------------------------------------------------------------------
-(with-eval-after-load 'deft
-  (defun bespoke-modeline-deft-print-header ()
-    (force-mode-line-update)
-    (widget-insert "\n")))
-
-(defun bespoke-modeline-deft-mode-p ()
-  (derived-mode-p 'deft-mode))
-
-(defun bespoke-modeline-deft-mode ()
-  (let ((prefix (bespoke-modeline-status))
-        (primary "Notes")
-        (filter  (if deft-filter-regexp
-                     (deft-whole-filter-regexp) "<filter>"))
-        (matches (if deft-filter-regexp
-                     (format "%d matches" (length deft-current-files))
-                   (format "%d notes" (length deft-all-files)))))
-    (bespoke-modeline-compose prefix primary filter matches)))
-
-;; ---------------------------------------------------------------------
-(defun bespoke-modeline-prog-mode-p ()
-  (derived-mode-p 'prog-mode))
-
-(defun bespoke-modeline-text-mode-p ()
-  (derived-mode-p 'text-mode))
-
-(defun bespoke-modeline-default-mode ()
-    (let ((buffer-name (format-mode-line "%b"))
-          (mode-name   (bespoke-modeline-mode-name))
-          (branch      (bespoke-modeline-vc-branch))
-          (position    (format-mode-line "%l:%c")))
-      (bespoke-modeline-compose (bespoke-modeline-status)
-                             buffer-name
-                             (concat "(" mode-name
-                                     (if branch (concat ", "
-                                            (propertize branch 'face 'italic)))
-                                     ")" )
-                             position)))
-
-;; ---------------------------------------------------------------------
-(defun bespoke-modeline-status ()
-  "Return buffer status: read-only (RO), modified (**) or read-write (RW)"
-  
-  (let ((read-only   buffer-read-only)
-        (modified    (and buffer-file-name (buffer-modified-p))))
-    (cond (modified  "**") (read-only "RO") (t "RW"))))
-  
-
-;; ---------------------------------------------------------------------
 (defun bespoke-modeline-face-clear (face)
   "Clear FACE"
   (set-face-attribute face nil
@@ -653,7 +888,8 @@ depending on the version of mu4e."
                       :box        'unspecified :inherit    'unspecified))
 
 
-;; ---------------------------------------------------------------------
+;;;; Define Selected Window
+
 (defvar bespoke-modeline--saved-mode-line-format nil)
 (defvar bespoke-modeline--saved-header-line-format nil)
 (defvar bespoke-modeline--selected-window nil)
@@ -662,7 +898,7 @@ depending on the version of mu4e."
   "Update selected window (before mode-line is active)"
   (setq bespoke-modeline--selected-window (selected-window)))
 
-
+;;;; Set content for mode/header line
 
 (defun bespoke-modeline ()
   "Build and set the modeline."
@@ -691,13 +927,14 @@ depending on the version of mu4e."
               ((bespoke-modeline-text-mode-p)            (bespoke-modeline-default-mode))
               ((bespoke-modeline-pdf-view-mode-p)        (bespoke-modeline-pdf-view-mode))
               ((bespoke-modeline-docview-mode-p)         (bespoke-modeline-docview-mode))
-              ;; ((bespoke-modeline-buffer-menu-mode-p)     (bespoke-modeline-buffer-menu-mode))
+              ((bespoke-modeline-buffer-menu-mode-p)     (bespoke-modeline-buffer-menu-mode))
               ((bespoke-modeline-completion-list-mode-p) (bespoke-modeline-completion-list-mode))
               ((bespoke-modeline-bespoke-help-mode-p)       (bespoke-modeline-bespoke-help-mode))
               (t                                      (bespoke-modeline-default-mode)))))))
     
     (if (eq bespoke-modeline-position 'top)
         (progn
+          (setq-default mode-line-format (list (propertize "%_" 'face `(:inherit fringe))))
           (setq header-line-format format)
           (setq-default header-line-format format))
       (progn
@@ -706,7 +943,7 @@ depending on the version of mu4e."
 
 
 (defun bespoke-modeline-mode--activate ()
-  "Activate nano modeline"
+  "Activate bespoke modeline"
 
   ;; Save current mode-line and header-line
   (unless bespoke-modeline--saved-mode-line-format
@@ -751,24 +988,22 @@ depending on the version of mu4e."
 
   ;; Update selected window
   (bespoke-modeline--update-selected-window)
-  ;; (setq bespoke-modeline--selected-window (selected-window))
 
   (setq         mode-line-format nil)
   (setq-default mode-line-format nil)
   (setq         header-line-format nil)
   (setq-default header-line-format nil)
-      
+
   (bespoke-modeline)
   
-  ;; This hooks is necessary to register selected window because when
+  ;; This hook is necessary to register selected window because when
   ;;  a modeline is evaluated, the corresponding window is always selected.
   (add-hook 'post-command-hook #'bespoke-modeline--update-selected-window)
-
   (force-mode-line-update t))
 
 
-(defun bespoke-modeline-mode--inactivate ()
-  "Inactivate nano mode line and restored default mode-line"
+(defun bespoke-modeline-mode--deactivate ()
+  "Deactivate bespoke mode-line and restore default mode-line"
   
   (custom-reevaluate-setting 'Info-use-header-line)
   (custom-reevaluate-setting 'Buffer-menu-use-header-line)
@@ -798,17 +1033,60 @@ depending on the version of mu4e."
 ;;;###autoload
 (define-minor-mode bespoke-modeline-mode
   "Toggle bespoke-modeline minor mode"
-  :group 'nano
+  :group 'bespoke-modeline
   :global t
   :init-value nil
 
   (if bespoke-modeline-mode
       (bespoke-modeline-mode--activate)
-    (bespoke-modeline-mode--inactivate))
+    (bespoke-modeline-mode--deactivate))
 
   ;; Run any registered hooks
   (run-hooks 'bespoke-modeline-mode-hook))
 
+;; Toggle functions
+(defun bespoke-modeline-get-current-theme ()
+  "Determines the currently enabled theme."
+  (or (car custom-enabled-themes) '*default*))
+
+;;;###autoload
+(defun bespoke-modeline-reload-current-theme ()
+  "Reloads the currently activated theme."
+  (bespoke-modeline-enable-theme (bespoke-modeline-get-current-theme)))
+
+;;;###autoload
+(defun bespoke-modeline-enable-theme (theme)
+  "Enables the specified color-theme.
+Pass `*default*' to select Emacs defaults."
+  (cl-flet* ((disable-all-themes ()
+                                 (mapcar 'disable-theme
+	                                     custom-enabled-themes)))
+    (disable-all-themes)
+    (condition-case nil
+        (when (not (eq theme '*default*))
+          (load-theme theme t))
+      (error nil))))
+
+(defun bespoke-modeline-toggle ()
+  "Toggle between a modeline in header or one at footer. Note that
+this function reloads the theme to properly set colors and that
+you may need to revert buffers to see the modeline properly."
+  (interactive)
+  (if (eq bespoke-modeline-position 'top)
+      (progn
+        (bespoke-modeline-face-clear 'mode-line)
+        (setq bespoke-modeline-position 'bottom)
+        (bespoke-modeline-mode--deactivate)
+        (bespoke-modeline-mode--activate)
+        (bespoke-modeline-reload-current-theme)
+        (run-hooks 'bespoke-modeline-mode-hook))
+    (progn
+      (setq bespoke-modeline-position 'top)
+      (bespoke-modeline-mode--deactivate)
+      (setq-default mode-line-format (list (propertize "%_" 'face `(:inherit fringe))))
+      (bespoke-modeline-mode--activate)
+      (bespoke-modeline-reload-current-theme)
+      (run-hooks 'bespoke-modeline-mode-hook))))
 
 (provide 'bespoke-modeline)
 ;;; bespoke-modeline.el ends here
