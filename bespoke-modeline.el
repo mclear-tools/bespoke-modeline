@@ -534,7 +534,7 @@ modified (⨀)/(**), or read-write (◯)/(RW)"
   (bespoke-modeline-compose " >_ "
                             "Terminal"
                             (concat "(" shell-file-name ")")
-                            (shorten-directory default-directory 32)))
+                            (bespoke-modeline-shorten-directory default-directory 32)))
 
 ;; ---------------------------------------------------------------------
 ;; vterm
@@ -551,7 +551,7 @@ modified (⨀)/(**), or read-write (◯)/(RW)"
   (bespoke-modeline-compose " >_ "
                             "Terminal"
                             (concat "(" (bespoke-modeline-get-ssh-host default-directory) ")")
-                            (shorten-directory (car (last (split-string default-directory ":"))) 32)))
+                            (bespoke-modelibe-shorten-directory (car (last (split-string default-directory ":"))) 32)))
 
 ;;;; Message Mode
 ;; ---------------------------------------------------------------------
