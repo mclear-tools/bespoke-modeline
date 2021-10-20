@@ -5,10 +5,11 @@ different) features.
 The modeline is notably less conservative/minimal than nano-modeline, in the sense
 that it has a broader color palette and provides more configuration options.
 
-The user is strongly encouraged to use bespoke-modeline with [[https://github.com/mclear-tools/bespoke-themes][bespoke-themes]], but it
-should be, in principle, compatible with any theme. 
+The user is strongly encouraged to use bespoke-modeline with [[https://github.com/mclear-tools/bespoke-themes][bespoke-themes]] (see that
+repo for sample images of the modeline), but it should be, in principle, compatible
+with any theme.
 
-** Options
+** Features/Options
 
 - The modeline may be set as a header line (similar in style to [[https://github.com/rougier/nano-emacs][nano-emacs]]), or as
   the normal footer line, setting =(bespoke-modeline-position)= to top, bottom, or nil.
@@ -16,9 +17,10 @@ should be, in principle, compatible with any theme.
 - Set the buffer status symbol in the modeline. This is configurable separately
   for GUI and terminal. Default symbols are, respectively, read-only: (⨂)/(RO),
   modified: (⨀)/(**), and read-write: (◯)/(RW).
+- Show both vc project and branch in the modeline 
 - Show git diff in modeline with =(bespoke-modeline-git-diff-mode-line)=
-- Substitute any symbol for the major mode by setting
-  =(bespoke-modeline-cleaner)= to 't' (see also the variable
+- Substitute any major mode symbol for its designated one by setting
+  =(bespoke-modeline-cleaner)= to 't' (and the related variable
   =(bespoke-modeline-cleaner-alist)=
 - The modeline is treated as a minor mode, so that it may be toggled on or off with =(bespoke-modeline-mode)=
 - Toggle between the top or bottom mode line with =(bespoke-modeline-toggle)=

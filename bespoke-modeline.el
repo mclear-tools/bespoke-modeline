@@ -25,7 +25,7 @@
 ;; along with this program. If not, see <http://www.gnu.org/licenses/>
 ;; -------------------------------------------------------------------
 ;;; Commentary:
-;; A bespoke modeline
+;; A bespoke modeline.
 ;; This mode line originated as a fork of the nano-emacs modeline.
 ;; See https://github.com/rougier/nano-emacs
 ;; https://github.com/rougier/nano-modeline
@@ -57,6 +57,7 @@
 ;; You may also toggle the modeline to the top or bottom using M-x: bespoke-modeline-toggle
 
 ;;; Code:
+
 ;;;; Group
 (defgroup bespoke nil
   "Bespoke group"
@@ -260,6 +261,8 @@ of bespoke-modeline-cleaner-alist"
 
 ;;;; Clean mode line
 ;; Source: https://www.masteringemacs.org/article/hiding-replacing-modeline-strings
+(require 'cl-lib)
+
 (defvar bespoke-modeline-cleaner-alist
   `((dired-mode . "Dir")
     (emacs-lisp-mode . "EL")
@@ -614,7 +617,7 @@ modified (⨀)/(**), or read-write (◯)/(RW)"
 (defun bespoke-modeline-buffer-menu-mode ()
   (let ((buffer-name "Buffer list")
         (mode-name   (bespoke-modeline-mode-name))
-        (position    (format-mode-line "%l:%c")))
+        (position    (format-mode-line "%l:%c ")))
 
     (bespoke-modeline-compose (bespoke-modeline-status)
                               buffer-name "" position)))
