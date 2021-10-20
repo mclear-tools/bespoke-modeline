@@ -26,3 +26,28 @@ with any theme.
 - Toggle between the top or bottom mode line with =(bespoke-modeline-toggle)=
 - There is a useful footer line visual alert "bell" inspired by [[https://github.com/hlissner/doom-emacs][DOOM emacs]]. To use
   include =(setq bespoke-modeline-visual-bell t)= in your setup of the theme.
+  
+
+** Setup
+
+I don't know if/when this will appear on MELPA. In the meantime to use this mode-line
+you'll have to clone or otherwise download the repo and put it into your load path.
+Here's one possible way of setting it up using [[https://github.com/jwiegley/use-package][use-package]] and [[https://github.com/raxod502/straight.el][straight]].
+
+#+begin_src emacs-lisp
+  (use-package bespoke-modeline
+    :straight (:type git :host github :repo "mclear-tools/bespoke-modeline") 
+    :init
+    ;; Set header line
+    (setq bespoke-modeline-position 'top)
+    ;; Set mode-line height
+    (setq bespoke-modeline-size 3)
+    ;; Show diff lines in mode-line
+    (setq bespoke-modeline-git-diff-mode-line t)
+    ;; Set mode-line cleaner
+    (setq bespoke-modeline-cleaner t)
+    ;; Use mode-line visual bell
+    (setq bespoke-modeline-visual-bell t)
+    :config
+    (bespoke-modeline-mode))
+#+end_src
