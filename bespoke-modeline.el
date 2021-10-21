@@ -374,6 +374,27 @@ want to use in the modeline *as substitute for* the original.")
       (setq output (concat "…/" output)))
     output))
 
+;;;; Mode line status
+;; ---------------------------------------------------------------------
+(defun bespoke-modeline-status ()
+  "Return buffer status: default symbols are read-only (⨂)/(RO),
+modified (⨀)/(**), or read-write (◯)/(RW)"
+  (let ((read-only   buffer-read-only)
+        (modified    (and buffer-file-name (buffer-modified-p))))
+    ;; Use status letters for TTY display
+    (cond
+     (modified
+      (if (display-graphic-p)
+          bespoke-modeline-gui-mod-symbol
+        bespoke-modeline-tty-mod-symbol))
+     (read-only
+      (if (display-graphic-p)
+          bespoke-modeline-gui-ro-symbol
+        bespoke-modeline-tty-ro-symbol))
+     (t (if (display-graphic-p)
+            bespoke-modeline-gui-rw-symbol
+          bespoke-modeline-tty-rw-symbol)))))
+
 ;;;; Compose mode line
 ;; -------------------------------------------------------------------
 
@@ -383,7 +404,7 @@ want to use in the modeline *as substitute for* the original.")
          (window        (get-buffer-window (current-buffer)))
          (active        (eq window bespoke-modeline--selected-window))
          (space-up       +0.20)
-         (space-down     -0.25)
+         (space-down     -0.20)
          (prefix (if (display-graphic-p)
                      (cond ((string= status bespoke-modeline-gui-ro-symbol)
                             (propertize (if (window-dedicated-p)" –– " bespoke-modeline-gui-ro-symbol)
@@ -404,19 +425,22 @@ want to use in the modeline *as substitute for* the original.")
                                                   'bespoke-modeline-inactive-status-**))))
                    ;; TTY displays
                    (cond ((string= status bespoke-modeline-tty-ro-symbol)
-                          (propertize (if (window-dedicated-p)" -- " bespoke-modeline-gui-ro-symbol)
-                                      'face (if active
-                                                'bespoke-modeline-active-status-RO
-                                              'bespoke-modeline-inactive-status-RO)))
+                          (propertize
+                           (if (window-dedicated-p) " -- " bespoke-modeline-tty-ro-symbol)
+                           'face (if active
+                                     'bespoke-modeline-active-status-RO
+                                   'bespoke-modeline-inactive-status-RO)))
                          ((string= status bespoke-modeline-tty-mod-symbol)
-                          (propertize (if (window-dedicated-p)" -- " bespoke-modeline-gui-mod-symbol)
-                                      'face (if active
-                                                'bespoke-modeline-active-status-**
-                                              'bespoke-modeline-inactive-status-**)))
+                          (propertize
+                           (if (window-dedicated-p) " -- " bespoke-modeline-tt-mod-symbol)
+                           'face (if active
+                                     'bespoke-modeline-active-status-**
+                                   'bespoke-modeline-inactive-status-**)))
                          ((string= status bespoke-modeline-tty-rw-symbol)
-                          (propertize (if (window-dedicated-p) " -- " bespoke-modeline-gui-rw-symbol)
-                                      'face (if active 'bespoke-modeline-active-status-RW
-                                              'bespoke-modeline-inactive-status-RW)))
+                          (propertize
+                           (if (window-dedicated-p) " -- " bespoke-modeline-tty-rw-symbol)
+                           'face (if active 'bespoke-modeline-active-status-RW
+                                   'bespoke-modeline-inactive-status-RW)))
                          (t (propertize status
                                         'face (if active 'bespoke-modeline-active-status-**
                                                 'bespoke-modeline-inactive-status-**))))))
@@ -445,16 +469,6 @@ want to use in the modeline *as substitute for* the original.")
                                 'bespoke-modeline-inactive))
             (propertize right 'face (if active 'bespoke-modeline-active-secondary
                                       'bespoke-modeline-inactive-secondary)))))
-
-;;;; Mode line status
-;; ---------------------------------------------------------------------
-(defun bespoke-modeline-status ()
-  "Return buffer status: default symbols are read-only (⨂)/(RO),
-modified (⨀)/(**), or read-write (◯)/(RW)"
-  (let ((read-only   buffer-read-only)
-        (modified    (and buffer-file-name (buffer-modified-p))))
-    ;; Use status letters for TTY display
-    (cond (modified (if (display-graphic-p) bespoke-modeline-gui-mod-symbol bespoke-modeline-tty-mod-symbol)) (read-only (if (display-graphic-p) bespoke-modeline-gui-ro-symbol bespoke-modeline-tty-ro-symbol)) (t (if (display-graphic-p) bespoke-modeline-gui-rw-symbol bespoke-modeline-tty-rw-symbol)))))
 
 ;;;; Default display
 
