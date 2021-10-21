@@ -12,7 +12,7 @@ The modeline is less conservative/minimal than nano-modeline, in the sense
 that it has a broader color palette and provides more configuration options.
 
 The user is strongly encouraged to use bespoke-modeline with [[https://github.com/mclear-tools/bespoke-themes][bespoke-themes]] (see that
-repo for sample images of the modeline), but it should be, in principle, compatible
+repo for more sample images of the modeline), but it should be, in principle, compatible
 with any theme.
 
 ** Features/Options
