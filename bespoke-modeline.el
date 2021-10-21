@@ -699,7 +699,7 @@ modified (⨀)/(**), or read-write (◯)/(RW)"
                             ""))
 
 (with-eval-after-load 'org-capture
-  (defun org-capture-turn-off-header-line ()
+  (defun bespoke-modeline--org-capture-turn-off-header-line ()
     (setq-local header-line-format (default-value 'header-line-format))
     (message nil))
   (add-hook 'org-capture-mode-hook
@@ -989,7 +989,7 @@ depending on the version of mu4e."
   
   (with-eval-after-load 'org-capture
     (add-hook 'org-capture-mode-hook
-              #'bespoke-modeline-org-capture-turn-off-header-line))
+              #'bespoke-modeline--org-capture-turn-off-header-line))
 
   (with-eval-after-load 'esh-mode
     (setq eshell-status-in-mode-line nil))
@@ -1034,7 +1034,7 @@ depending on the version of mu4e."
   (remove-hook 'calendar-initial-window-hook
                #'bespoke-modeline-calendar-setup-header)
   (remove-hook 'org-capture-mode-hook
-               #'bespoke-modeline-org-capture-turn-off-header-line)
+               #'bespoke-modeline--org-capture-turn-off-header-line)
   (remove-hook 'org-clock-out-hook
                #'bespoke-modeline-org-clock-out)
   (remove-hook 'post-command-hook
