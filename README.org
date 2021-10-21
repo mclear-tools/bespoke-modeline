@@ -1,8 +1,8 @@
-A minimalist custom modeline for emacs. This started as a fork of [[https://github.com/rougier][Nicolas Rougier's]]
+A simple custom modeline for emacs. This started as a fork of [[https://github.com/rougier][Nicolas Rougier's]] excellent
 [[https://github.com/rougier/nano-modeline][nano-modeline]], but has evolved somewhat to include several extra (or simply
 different) features. 
 
-The modeline is notably less conservative/minimal than nano-modeline, in the sense
+The modeline is less conservative/minimal than nano-modeline, in the sense
 that it has a broader color palette and provides more configuration options.
 
 The user is strongly encouraged to use bespoke-modeline with [[https://github.com/mclear-tools/bespoke-themes][bespoke-themes]] (see that
