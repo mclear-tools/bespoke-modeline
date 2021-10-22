@@ -189,7 +189,7 @@ of bespoke-modeline-cleaner-alist"
 
 ;; Visual Bell
 (defcustom bespoke-modeline-visual-bell t
-  "If t then use bespoke-visual-bell."
+  "If t then use bespoke-modeline-visual-bell."
   :group 'bespoke-themes
   :type 'boolean)
 
@@ -239,7 +239,7 @@ of bespoke-modeline-cleaner-alist"
 ;;;###autoload
 (defun bespoke-modeline-visual-bell-fn ()
   "Blink the mode-line red briefly. Set `ring-bell-function' to this to use it."
-  (let ((bespoke-modeline--bell-cookie (face-remap-add-relative 'mode-line 'bespoke-visual-bell)))
+  (let ((bespoke-modeline--bell-cookie (face-remap-add-relative 'mode-line 'bespoke-modeline-visual-bell)))
     (force-mode-line-update)
     (run-with-timer 0.15 nil
                     (lambda (cookie buf)
