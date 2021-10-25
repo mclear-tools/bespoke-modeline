@@ -703,7 +703,7 @@ modified (⨀)/(**), or read-write (◯)/(RW)"
     (setq-local header-line-format (default-value 'header-line-format))
     (message nil))
   (add-hook 'org-capture-mode-hook
-            #'org-capture-turn-off-header-line))
+            #'bespoke-modeline--org-capture-turn-off-header-line))
 
 ;;;; Org Agenda
 ;; ---------------------------------------------------------------------
