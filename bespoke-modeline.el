@@ -679,13 +679,13 @@ modified (⨀)/(**), or read-write (◯)/(RW)"
 
 ;; Calendar (no header, only overline)
 (with-eval-after-load 'calendar
-  (defun calendar-setup-header ()
+  (defun bespoke-modeline-calendar-setup-header ()
     (setq header-line-format "")
     (face-remap-add-relative
      'header-line `(:overline ,(face-foreground 'default)
                     :height 0.5
                     :background ,(face-background 'default)))))
-(add-hook 'calendar-initial-window-hook #'calendar-setup-header)
+(add-hook 'calendar-initial-window-hook #'bespoke-modeline-calendar-setup-header)
 
 ;;;; Org Capture
 ;; ---------------------------------------------------------------------
