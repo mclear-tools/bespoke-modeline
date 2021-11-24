@@ -611,12 +611,15 @@ modified (⨀)/(**), or read-write (◯)/(RW)"
 (defun bespoke-modeline-pdf-view-mode-p ()
   (derived-mode-p 'pdf-view-mode))
 
+(with-eval-after-load 'pdf-tools
+  (require 'pdf-view))
+
 (defun bespoke-modeline-pdf-view-mode ()
   (let ((buffer-name (format-mode-line "%b"))
 	    (mode-name   (bespoke-modeline-mode-name))
 	    (branch      (bespoke-modeline-vc-project-branch))
 	    (page-number (concat
-		              (number-to-string (pdf-view-current-page)) "/"
+		              (number-to-string (eval `(pdf-view-current-page))) "/"
 		              (or (ignore-errors
 			                (number-to-string (pdf-cache-number-of-pages)))
 			              "???"))))
