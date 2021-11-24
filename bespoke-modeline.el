@@ -224,6 +224,11 @@ of bespoke-modeline-cleaner-alist"
   :group 'bespoke-modeline
   :type 'string)
 
+(defcustom bespoke-modeline-truncate-value 30
+  "Value of modeline truncate-length function."
+  :group 'bespoke-modeline
+  :type 'integer)
+
 ;;; Optional Functions
 
 ;;;; Visual bell for mode line
@@ -478,7 +483,7 @@ modified (⨀)/(**), or read-write (◯)/(RW)"
         (branch      (bespoke-modeline-vc-project-branch))
         (position    (format-mode-line "%l:%c ")))
     (bespoke-modeline-compose (bespoke-modeline-status)
-                              buffer-name
+                              (bespoke-modeline-truncate buffer-name bespoke-modeline-truncate-value)
                               (concat "(" mode-name
                                       (when branch
                                         branch)
