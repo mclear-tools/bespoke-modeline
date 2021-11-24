@@ -28,6 +28,8 @@ with any theme.
 - Substitute any major mode symbol for its designated one by setting
   =(bespoke-modeline-cleaner)= to 't' (and the related variable
   =(bespoke-modeline-cleaner-alist)=
+- Truncate the buffer-name to a specific value (default is 30) using
+  =(bespoke-modeline-truncate-value)=
 - The modeline is treated as a minor mode, so that it may be toggled on or off with =(bespoke-modeline-mode)=
 - Toggle between the top or bottom mode line with =(bespoke-modeline-toggle)=
 - There is a useful footer line visual alert "bell" inspired by [[https://github.com/hlissner/doom-emacs][DOOM emacs]]. To use
