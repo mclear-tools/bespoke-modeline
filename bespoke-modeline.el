@@ -229,6 +229,18 @@ of bespoke-modeline-cleaner-alist"
   :group 'bespoke-modeline
   :type 'integer)
 
+(defcustom bespoke-modeline-space-top +0.20
+  "Space adjustment for top of modeline
+ Possitive is upwards"
+  :type 'float
+  :group 'bespoke-modeline)
+
+(defcustom bespoke-modeline-space-bottom -0.25
+  "Space adjustment for bottom of modeline
+ Negative is downwards."
+  :type 'float
+  :group 'bespoke-modeline)
+
 ;;; Optional Functions
 
 ;;;; Visual bell for mode line
@@ -408,8 +420,6 @@ modified (⨀)/(**), or read-write (◯)/(RW)"
   (let* ((char-width    (window-font-width nil 'header-line))
          (window        (get-buffer-window (current-buffer)))
          (active        (eq window bespoke-modeline--selected-window))
-         (space-up       +0.20)
-         (space-down     -0.20)
          (prefix (if (display-graphic-p)
                      (cond ((string= status bespoke-modeline-gui-ro-symbol)
                             (propertize (if (window-dedicated-p)" –– " bespoke-modeline-gui-ro-symbol)
@@ -453,12 +463,12 @@ modified (⨀)/(**), or read-write (◯)/(RW)"
          (left (concat
                 (propertize " "  'face (if active 'bespoke-modeline-active
                                          'bespoke-modeline-inactive)
-                            'display `(raise ,space-up))
+                            'display `(raise ,bespoke-modeline-space-top))
                 (propertize name 'face (if active 'bespoke-modeline-active-name
                                          'bespoke-modeline-inactive-name))
                 (propertize " "  'face (if active 'bespoke-modeline-active
                                          'bespoke-modeline-inactive)
-                            'display `(raise ,space-down))
+                            'display `(raise ,bespoke-modeline-space-bottom))
                 (propertize primary 'face (if active 'bespoke-modeline-active-primary
                                             'bespoke-modeline-inactive-primary))))
          (right (concat secondary " "))
