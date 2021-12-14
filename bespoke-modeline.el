@@ -337,26 +337,30 @@ want to use in the modeline *as substitute for* the original.")
 
 ;;;; Branch display
 ;; -------------------------------------------------------------------
-(defun bespoke-modeline-vc-project-branch ()
-  "Show project and branch name"
-  (let ((backend (vc-backend buffer-file-name)))
-    (when buffer-file-name
-      (concat
-       (if (bound-and-true-p projectile-mode)
-           (let ((project-name (projectile-project-name)))
-             ;; Project name
-             (unless (string= "-" project-name)
-               (concat
-                ;; Divider
-                (propertize " •" 'face `(:inherit fringe))
-                (format " %s" project-name))))
-         " ")
-       ;; Show branch
-       (if vc-mode
-           (concat
-            "" (substring-no-properties vc-mode ;    
-                                         (+ (if (eq backend 'Hg) 2 3) 2)))  nil)))))
+(defun bespoke-project-name ()
+  "return name of project without path"
+  (file-name-nondirectory (directory-file-name (if (vc-root-dir) (vc-root-dir) "-"))))
 
+(defun bespoke-modeline-vc-project-branch ()
+  "If buffer is visiting a file under version control, show project and branch name for file. Otherwise show '-'"
+  (let ((backend (vc-backend buffer-file-name)))
+    (concat
+     (if buffer-file-name
+         (if vc-mode
+             (let ((project-name (bespoke-project-name)))
+               ;; Project name
+               (unless (string= "-" project-name)
+                 (concat
+                  ;; Divider
+                  (propertize " •" 'face `(:inherit fringe))
+                  (format " %s" project-name)
+                  )))
+           " "))
+     ;; Show branch
+     (if vc-mode
+         (concat
+          "" (substring-no-properties vc-mode ;    
+                                       (+ (if (eq backend 'Hg) 2 3) 2)))  nil))))
 ;; Git diff in modeline
 ;; https://cocktailmake.github.io/posts/emacs-modeline-enhancement-for-git-diff/
 (when bespoke-modeline-git-diff-mode-line
