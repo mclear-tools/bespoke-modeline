@@ -35,8 +35,9 @@ with any theme.
 - There is a useful footer line visual alert "bell" inspired by [[https://github.com/hlissner/doom-emacs][DOOM emacs]]. To use
   include =(setq bespoke-modeline-visual-bell t)= in your setup of the theme.
 - You can control spacing in the modeline with =bespoke-modeline-space-top=
-  and =bespoke-modeline-space-bottom=. 
-
+  and =bespoke-modeline-space-bottom=.
+- Set the symbol for vc-mode with =bespoke-modeline-vc-symbol=
+  
 ** Setup
 
 I dont know if/when this will appear on MELPA. In the meantime to use this mode-line
@@ -57,6 +58,8 @@ Here's one possible way of setting it up using [[https://github.com/jwiegley/use
     (setq bespoke-modeline-cleaner t)
     ;; Use mode-line visual bell
     (setq bespoke-modeline-visual-bell t)
+    ;; Set vc symbol
+    (setq  bespoke-modeline-vc-symbol "G:")
     :config
     (bespoke-modeline-mode))
 #+end_src

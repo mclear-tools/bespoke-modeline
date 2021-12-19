@@ -154,12 +154,6 @@ Modeline is composed as:
   "Modeline face for inactive MODIFIED element"
   :group 'bespoke-modeline-inactive)
 
-(defcustom bespoke-modeline-user-mode nil
-  "User supplied mode to be evaluated for modeline."
-  :type '(choice (const nil) function)
-  :group 'bespoke-modeline)
-
-
 ;;; Modeline Options
 (defcustom bespoke-modeline-position 'top
   "Default modeline position (top or bottom)"
@@ -167,6 +161,11 @@ Modeline is composed as:
           (const :tag "Nil" nil)
           (const :tag "Top"    top)
           (const :tag "Bottom" bottom))
+  :group 'bespoke-modeline)
+
+(defcustom bespoke-modeline-user-mode nil
+  "User supplied mode to be evaluated for modeline."
+  :type '(choice (const nil) function)
   :group 'bespoke-modeline)
 
 (defcustom bespoke-modeline-size 3
@@ -186,6 +185,11 @@ of bespoke-modeline-cleaner-alist"
   "If t then show diff lines in modeline."
   :group 'bespoke-modeline
   :type 'boolean)
+
+(defcustom bespoke-modeline-vc-symbol ""
+  "Symbol to use in buffers visiting files under version control"
+  :group 'bespoke-modeline
+  :type 'string)
 
 ;; Visual Bell
 (defcustom bespoke-modeline-visual-bell t
@@ -354,14 +358,13 @@ want to use in the modeline *as substitute for* the original.")
                   ;; Divider
                   (propertize " •" 'face `(:inherit fringe))
                   (format " %s" project-name)
-                  )))
-           " "))
+                  )))))
      ;; Show branch
      (if vc-mode
          (concat
-          "" (substring-no-properties vc-mode ;    
-                                       (+ (if (eq backend 'Hg) 2 3) 2)))  nil))))
-;; Git diff in modeline
+          bespoke-modeline-vc-symbol (substring-no-properties vc-mode ;    
+                                                              (+ (if (eq backend 'Hg) 2 3) 2)))  nil))))
+;;;; Git diff in modeline
 ;; https://cocktailmake.github.io/posts/emacs-modeline-enhancement-for-git-diff/
 (when bespoke-modeline-git-diff-mode-line
   (defadvice vc-git-mode-line-string (after plus-minus (file) compile activate)
