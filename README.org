@@ -17,26 +17,26 @@ with any theme.
 
 ** Features/Options
 
-- The modeline may be set as a header line (similar in style to [[https://github.com/rougier/nano-emacs][nano-emacs]]), or as
++ The modeline may be set as a header line (similar in style to [[https://github.com/rougier/nano-emacs][nano-emacs]]), or as
   the normal footer line, setting =(bespoke-modeline-position)= to top, bottom, or nil.
-- You can set the size of the mode line with =(bespoke-modeline-size)=
-- Set the buffer status symbol in the modeline. This is configurable separately
++ You can set the size of the mode line with =(bespoke-modeline-size)=
++ Set the buffer status symbol in the modeline. This is configurable separately
   for GUI and terminal. Default symbols are, respectively, read-only: (⨂)/(RO),
   modified: (⨀)/(**), and read-write: (◯)/(RW).
-- Show both vc project and branch in the modeline 
-- Show git diff in modeline with =(bespoke-modeline-git-diff-mode-line)=
-- Substitute any major mode symbol for its designated one by setting
++ Show both vc project and branch in the modeline 
++ Show git diff in modeline with =(bespoke-modeline-git-diff-mode-line)=
++ Substitute any major mode symbol for its designated one by setting
   =(bespoke-modeline-cleaner)= to 't (and the related variable
   =(bespoke-modeline-cleaner-alist)=
-- Truncate the buffer-name to a specific value (default is 30) using
++ Truncate the buffer-name to a specific value (default is 30) using
   =(bespoke-modeline-truncate-value)=
-- The modeline is treated as a minor mode, so that it may be toggled on or off with =(bespoke-modeline-mode)=
-- Toggle between the top or bottom mode line with =(bespoke-modeline-toggle)=
-- There is a useful footer line visual alert "bell" inspired by [[https://github.com/hlissner/doom-emacs][DOOM emacs]]. To use
++ The modeline is treated as a minor mode, so that it may be toggled on or off with =(bespoke-modeline-mode)=
++ Toggle between the top or bottom mode line with =(bespoke-modeline-toggle)=
++ There is a useful footer line visual alert "bell" inspired by [[https://github.com/hlissner/doom-emacs][DOOM emacs]]. To use
   include =(setq bespoke-modeline-visual-bell t)= in your setup of the theme.
-- You can control spacing in the modeline with =bespoke-modeline-space-top=
++ You can control spacing in the modeline with =bespoke-modeline-space-top=
   and =bespoke-modeline-space-bottom=.
-- Set the symbol for vc-mode with =bespoke-modeline-vc-symbol=
++ Set the symbol for vc-mode with =bespoke-modeline-vc-symbol=
   
 ** Setup
 

@@ -566,19 +566,21 @@ modified (⨀)/(**), or read-write (◯)/(RW)"
 
 ;;;; Term & Vterm
 ;; ---------------------------------------------------------------------
+;; term
 (defun bespoke-modeline-term-mode-p ()
   (derived-mode-p 'term-mode))
+
+;; vterm
+(defun bespoke-modeline-vterm-mode-p ()
+  (derived-mode-p 'vterm-mode))
 
 (defun bespoke-modeline-term-mode ()
   (bespoke-modeline-compose " >_ "
                             "Terminal"
-                            (concat "(" shell-file-name ")")
+                            (concat "(" (file-name-nondirectory shell-file-name) ")")
                             (bespoke-modeline-shorten-directory default-directory 32)))
 
 ;; ---------------------------------------------------------------------
-;; vterm
-(defun bespoke-modeline-vterm-mode-p ()
-  (derived-mode-p 'vterm-mode))
 
 (defun bespoke-modeline-get-ssh-host (_str)
   (let ((split-defdir (split-string default-directory)))
@@ -586,7 +588,7 @@ modified (⨀)/(**), or read-write (◯)/(RW)"
         (car (split-string (shell-command-to-string "hostname") "\n"))
       (cadr split-defdir))))
 
-(defun bespoke-modeline-vterm-mode ()
+(defun bespoke-modeline-ssh-mode ()
   (bespoke-modeline-compose " >_ "
                             "Terminal"
                             (concat "(" (bespoke-modeline-get-ssh-host default-directory) ")")
