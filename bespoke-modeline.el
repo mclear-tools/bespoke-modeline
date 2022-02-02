@@ -981,8 +981,8 @@ depending on the version of mu4e."
               ((bespoke-modeline-docview-mode-p)         (bespoke-modeline-docview-mode))
               ((bespoke-modeline-buffer-menu-mode-p)     (bespoke-modeline-buffer-menu-mode))
               ((bespoke-modeline-completion-list-mode-p) (bespoke-modeline-completion-list-mode))
-              ((bespoke-modeline-bespoke-help-mode-p)       (bespoke-modeline-bespoke-help-mode))
-              (t                                      (bespoke-modeline-default-mode)))))))
+              ((bespoke-modeline-bespoke-help-mode-p)    (bespoke-modeline-bespoke-help-mode))
+              (t                                         (bespoke-modeline-default-mode)))))))
     
     (if (eq bespoke-modeline-position 'top)
         (progn

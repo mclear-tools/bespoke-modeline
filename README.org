@@ -23,6 +23,17 @@ with any theme.
 + Set the buffer status symbol in the modeline. This is configurable separately
   for GUI and terminal. Default symbols are, respectively, read-only: (⨂)/(RO),
   modified: (⨀)/(**), and read-write: (◯)/(RW).
+   - *NOTE*: If you use symbols you should make sure you are using a font that
+     will display them properly. Here is one reliable way, using [[https://fontlibrary.org/en/font/symbola][Symbola]] font:
+     #+begin_src emacs-lisp
+       (use-package fontset
+         :straight (:type built-in) ;; only include this if you use straight
+         :config
+         ;; Use symbola for proper unicode
+         (when (member "Symbola" (font-family-list))
+           (set-fontset-font
+            t 'symbol "Symbola" nil 'prepend)))
+     #+end_src
 + Show both vc project and branch in the modeline 
 + Show git diff in modeline with =(bespoke-modeline-git-diff-mode-line)=
 + Substitute any major mode symbol for its designated one by setting
