@@ -748,33 +748,41 @@ modified (⨀)/(**), or read-write (◯)/(RW)"
 
 ;;;; Org Clock
 ;; ---------------------------------------------------------------------
-(with-eval-after-load 'org-clock
-  (add-hook 'org-clock-out-hook #'bespoke-modeline-org-clock-out))
-
-(defun bespoke-modeline-org-clock-out ()
-  (setq org-mode-line-string nil)
-  (force-mode-line-update))
-
 (defun bespoke-modeline-org-clock-mode-p ()
   (and (boundp 'org-mode-line-string)
-       (not org-mode-line-string)))
+       (stringp org-mode-line-string)))
 
 (defun bespoke-modeline-org-clock-mode ()
   (let ((buffer-name (format-mode-line "%b"))
         (mode-name   (bespoke-modeline-mode-name))
-        (branch      (bespoke-modeline-vc-project-branch)))
+        (branch      (bespoke-modeline-vc-project-branch))
+        (position    (format-mode-line "%l:%c")))
     (bespoke-modeline-compose (bespoke-modeline-status)
                               buffer-name
                               (concat "(" mode-name
                                       (when branch
                                         branch)
-                                      ")")
+                                      ")" )
                               (concat
                                ;; Narrowed buffer
                                (when (buffer-narrowed-p)
                                  (propertize "⇥ "  'face `(:inherit fringe)))
-                               org-mode-line-string))))
+                               org-mode-line-string
+                               " "
+                               position
+                               " "))))
 
+(defun bespoke-modeline-org-clock-out ()
+  (setq org-mode-line-string nil)
+  (force-mode-line-update))
+
+(defun bespoke-modeline-org-clock-activate ()
+  (with-eval-after-load 'org-clock
+    (add-hook 'org-clock-out-hook #'bespoke-modeline-org-clock-out)))
+
+(defun bespoke-modeline-org-clock-inactivate ()
+  (remove-hook 'org-clock-out-hook
+               #'bespoke-modeline-org-clock-out))
 
 ;;;; Elfeed
 (defun bespoke-modeline-elfeed-search-mode-p ()
