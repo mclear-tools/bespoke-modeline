@@ -35,6 +35,8 @@ with any theme.
             t 'symbol "Symbola" nil 'prepend)))
      #+end_src
 + Show both vc project and branch in the modeline 
++ Set the symbol for vc-mode with =bespoke-modeline-vc-symbol=
+  and =bespoke-modeline-space-bottom=.
 + Show git diff in modeline with =(bespoke-modeline-git-diff-mode-line)=
 + Substitute any major mode symbol for its designated one by setting
   =(bespoke-modeline-cleaner)= to 't (and the related variable
@@ -46,8 +48,6 @@ with any theme.
 + There is a useful footer line visual alert "bell" inspired by [[https://github.com/hlissner/doom-emacs][DOOM emacs]]. To use
   include =(setq bespoke-modeline-visual-bell t)= in your setup of the theme.
 + You can control spacing in the modeline with =bespoke-modeline-space-top=
-  and =bespoke-modeline-space-bottom=.
-+ Set the symbol for vc-mode with =bespoke-modeline-vc-symbol=
   
 ** Setup
 
