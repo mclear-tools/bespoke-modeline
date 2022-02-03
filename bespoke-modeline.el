@@ -750,7 +750,8 @@ modified (⨀)/(**), or read-write (◯)/(RW)"
 ;; ---------------------------------------------------------------------
 (defun bespoke-modeline-org-clock-mode-p ()
   (and (boundp 'org-mode-line-string)
-       (stringp org-mode-line-string)))
+       (stringp org-mode-line-string))
+  (bespoke-modeline-org-clock-deactivate))
 
 (defun bespoke-modeline-org-clock-mode ()
   (let ((buffer-name (format-mode-line "%b"))
@@ -776,13 +777,9 @@ modified (⨀)/(**), or read-write (◯)/(RW)"
   (setq org-mode-line-string nil)
   (force-mode-line-update))
 
-(defun bespoke-modeline-org-clock-activate ()
+(defun bespoke-modeline-org-clock-deactivate ()
   (with-eval-after-load 'org-clock
     (add-hook 'org-clock-out-hook #'bespoke-modeline-org-clock-out)))
-
-(defun bespoke-modeline-org-clock-inactivate ()
-  (remove-hook 'org-clock-out-hook
-               #'bespoke-modeline-org-clock-out))
 
 ;;;; Elfeed
 (defun bespoke-modeline-elfeed-search-mode-p ()
@@ -1019,9 +1016,6 @@ depending on the version of mu4e."
     (add-hook 'calendar-initial-window-hook
               #'bespoke-modeline-calendar-setup-header))
 
-  (with-eval-after-load 'org-clock
-    (add-hook 'org-clock-out-hook #'bespoke-modeline-org-clock-out))
-  
   (with-eval-after-load 'org-capture
     (add-hook 'org-capture-mode-hook
               #'bespoke-modeline--org-capture-turn-off-header-line))
