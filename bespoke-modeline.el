@@ -727,7 +727,7 @@ modified (⨀)/(**), or read-write (◯)/(RW)"
 
 (with-eval-after-load 'org-capture
   (defun bespoke-modeline--org-capture-turn-off-header-line ()
-    (setq-local header-line-format (default-value 'header-line-format))
+    (setq-local header-line-format (default-value nil))
     (message nil))
   (add-hook 'org-capture-mode-hook
             #'bespoke-modeline--org-capture-turn-off-header-line))
