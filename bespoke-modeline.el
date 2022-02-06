@@ -95,7 +95,7 @@ Modeline is composed as:
   :group 'bespoke-modeline-active)
 
 (defface bespoke-modeline-active-primary
-  '((t (:inherit fringe)))
+  '((t (:inherit mode-line)))
   "Modeline face for active primary element"
   :group 'bespoke-modeline-active)
 
