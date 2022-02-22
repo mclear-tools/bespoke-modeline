@@ -832,25 +832,34 @@ depending on the version of mu4e."
       mu4e--server-props
     mu4e~server-props))
 
+(defun bespoke-modeline-mu4e-activate ()
+  (with-eval-after-load 'mu4e
+    (advice-add 'mu4e~header-line-format :override #'bespoke-modeline)))
+
+(defun bespoke-modeline-mu4e-deactivate ()
+  (advice-remove #'mu4e~header-line-format #'bespoke-modeline))
+
 ;; ---------------------------------------------------------------------
 (defun bespoke-modeline-mu4e-dashboard-mode-p ()
   (bound-and-true-p mu4e-dashboard-mode))
 
 (defun bespoke-modeline-mu4e-dashboard-mode ()
   (bespoke-modeline-compose (bespoke-modeline-status)
-                            "Mail"
-                            (bespoke-modeline-mu4e-context)
-                            (format "%d messages" (plist-get (bespoke-modeline-mu4e-server-props) :doccount))))
+                            (format "%d messages"
+                                    (plist-get (bespoke-modeline-mu4e-server-props) :doccount))
+                            ""
+                            " "))
 
 ;; ---------------------------------------------------------------------
 (defun bespoke-modeline-mu4e-loading-mode-p ()
   (derived-mode-p 'mu4e-loading-mode))
 
+
 (defun bespoke-modeline-mu4e-loading-mode ()
   (bespoke-modeline-compose (bespoke-modeline-status)
-                            "Mail"
+                            "Loading..."
                             (bespoke-modeline-mu4e-context)
-                            (format-time-string "%A %d %B %Y, %H:%M")))
+                            (format-time-string "%A %d %B %Y, %H:%M ")))
 
 ;; ---------------------------------------------------------------------
 (defun bespoke-modeline-mu4e-main-mode-p ()
@@ -858,13 +867,25 @@ depending on the version of mu4e."
 
 (defun bespoke-modeline-mu4e-main-mode ()
   (bespoke-modeline-compose (bespoke-modeline-status)
-                            "Mail"
                             (bespoke-modeline-mu4e-context)
-                            (format-time-string "%A %d %B %Y, %H:%M")))
+                            ""
+                            (format-time-string "%A %d %B %Y, %H:%M ")))
+
+;; ---------------------------------------------------------------------
+(defun bespoke-modeline-mu4e-compose-mode-p ()
+  (derived-mode-p 'mu4e-compose-mode))
+
+(defun bespoke-modeline-mu4e-compose-mode ()
+  (bespoke-modeline-compose (bespoke-modeline-status)
+                            (format-mode-line "%b")
+                            ""
+                            (format "[%s] "
+                                    (bespoke-modeline-mu4e-quote
+                                     (mu4e-context-name (mu4e-context-current))))))
 
 ;; ---------------------------------------------------------------------
 (defun bespoke-modeline-mu4e-quote (str)
-  (if (string> mu4e-mu-version "1.6.5")
+  (if (version< "1.6.5" mu4e-mu-version)
       (mu4e~quote-for-modeline str)
     (mu4e-quote-for-modeline str)))
 
@@ -874,9 +895,10 @@ depending on the version of mu4e."
 (defun bespoke-modeline-mu4e-headers-mode ()
   (let ((mu4e-modeline-max-width 80))
     (bespoke-modeline-compose (bespoke-modeline-status)
-                              (bespoke-modeline-mu4e-quote (bespoke-modeline-mu4e-last-query))
-                              ""
-                              (format "[%s]"
+                              "Search:"
+                              (or (bespoke-modeline-mu4e-quote
+                                   (bespoke-modeline-mu4e-last-query)) "")
+                              (format "[%s] "
                                       (bespoke-modeline-mu4e-quote
                                        (mu4e-context-name (mu4e-context-current)))))))
 
@@ -888,20 +910,12 @@ depending on the version of mu4e."
   (let* ((msg     (mu4e-message-at-point))
          (subject (mu4e-message-field msg :subject))
          (from    (mu4e~headers-contact-str (mu4e-message-field msg :from)))
-         (date     (mu4e-message-field msg :date)))
+         (date    (mu4e-message-field msg :date)))
     (bespoke-modeline-compose (bespoke-modeline-status)
-                              (bespoke-modeline-truncate subject 60)
+                              (or subject "")
                               ""
-                              from)))
-
-(defun bespoke-modeline-mu4e-view-hook ()
-  (setq header-line-format "%-")
-  (face-remap-add-relative 'header-line
-                           '(:background "#ffffff"
-                             :underline nil
-                             :box nil
-                             :height 1.0)))
-;; (add-hook 'mu4e-view-mode-hook #'bespoke-modeline-mu4e-view-hook)
+                              (or from "")
+                              'read-only)))
 
 ;;;; Help
 
