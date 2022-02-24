@@ -910,14 +910,11 @@ depending on the version of mu4e."
   (let* ((msg     (mu4e-message-at-point))
          (subject (mu4e-message-field msg :subject))
          (from    (mu4e~headers-contact-str (mu4e-message-field msg :from)))
-         (date    (mu4e~headers-human-date msg)))
+         (date    (mu4e-message-field msg :date)))
     (bespoke-modeline-compose (bespoke-modeline-status)
                               (or from "")
                               (concat "(" (bespoke-modeline-truncate (or subject "") 50 "…") ")")
-                              (concat (or date "") " ")
-                              )))
-
-(let ((msg (mu4e-message-at-point))) (mu4e-message-field msg :human-date))
+                              (concat (or (format-time-string mu4e-headers-date-format date) "") " "))))
 
 ;;;; Help
 
