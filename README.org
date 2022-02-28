@@ -32,7 +32,7 @@ with any theme.
          ;; Use symbola for proper unicode
          (when (member "Symbola" (font-family-list))
            (set-fontset-font
-            t 'symbol "Symbola" nil 'prepend)))
+            t 'symbol "Symbola" nil)))
      #+end_src
 + Show both vc project and branch in the modeline 
 + Set the symbol for vc-mode with =bespoke-modeline-vc-symbol=
