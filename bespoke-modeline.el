@@ -292,7 +292,7 @@ of bespoke-modeline-cleaner-alist"
 (defvar bespoke-modeline-cleaner-alist
   `((dired-mode . "Dir")
     (emacs-lisp-mode . "EL")
-    (fundamental-mode . "FL")
+    (fundamental-mode . "F")
     (helpful-mode . "")
     (help-mode . "")
     (lisp-interaction-mode . "λ")
