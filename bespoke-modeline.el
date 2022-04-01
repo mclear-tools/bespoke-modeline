@@ -233,6 +233,11 @@ of bespoke-modeline-cleaner-alist"
   :group 'bespoke-modeline
   :type 'integer)
 
+(defcustom bespoke-modeline-spacer ""
+  "Space adjustment for right end of modeline."
+  :type 'string
+  :group 'bespoke-modeline)
+
 (defcustom bespoke-modeline-space-top +0.20
   "Space adjustment for top of modeline
  Possitive is upwards"
@@ -478,7 +483,7 @@ modified (⨀)/(**), or read-write (◯)/(RW)"
                             'display `(raise ,bespoke-modeline-space-bottom))
                 (propertize primary 'face (if active 'bespoke-modeline-active-primary
                                             'bespoke-modeline-inactive-primary))))
-         (right (concat secondary " "))
+         (right (concat secondary " " bespoke-modeline-spacer))
 
          (available-width (- (window-total-width)
                              (length prefix) (length left) (length right)
