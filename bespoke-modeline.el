@@ -85,7 +85,7 @@ Modeline is composed as:
 ;;;; Faces
 
 (defface bespoke-modeline-active
-  '((t (:inherit mode-line)))
+  '((t (:inherit (mode-line))))
   "Modeline face for active modeline"
   :group 'bespoke-modeline-active)
 
@@ -95,7 +95,7 @@ Modeline is composed as:
   :group 'bespoke-modeline-active)
 
 (defface bespoke-modeline-active-primary
-  '((t (:inherit mode-line)))
+  '((t (:weight light :inherit (mode-line))))
   "Modeline face for active primary element"
   :group 'bespoke-modeline-active)
 
@@ -105,17 +105,17 @@ Modeline is composed as:
   :group 'bespoke-modeline-active)
 
 (defface bespoke-modeline-active-status-RO
-  '((t (:inherit mode-line)))
+  '((t (:inherit default :background "yellow" :box (:line-width 2 :color "yellow" :style nil))))
   "Modeline face for active READ-ONLY element"
   :group 'bespoke-modeline-active)
 
 (defface bespoke-modeline-active-status-RW
-  '((t (:inherit mode-line)))
+  '((t (:inherit default :background "green" (:line-width 2 :color "green" :style nil))))
   "Modeline face for active READ-WRITE element"
   :group 'bespoke-modeline-active)
 
 (defface bespoke-modeline-active-status-**
-  '((t (:inherit mode-line)))
+  '((t (:inherit default :background "red" (:line-width 2 :color "red" :style nil))))
   "Modeline face for active MODIFIED element"
   :group 'bespoke-modeline-active)
 
@@ -140,19 +140,21 @@ Modeline is composed as:
   :group 'bespoke-modeline-inactive)
 
 (defface bespoke-modeline-inactive-status-RO
-  '((t (:inherit mode-line-inactive)))
+  '((t (:foreground "light gray" :background "dark gray" (:line-width 2 :color "dark gray" :style nil))))
   "Modeline face for inactive READ-ONLY element"
   :group 'bespoke-modeline-inactive)
 
 (defface bespoke-modeline-inactive-status-RW
-  '((t (:inherit mode-line-inactive)))
+  '((t (:foreground "light gray" :background "dark gray" (:line-width 2 :color "dark gray" :style nil))))
   "Modeline face for inactive READ-WRITE element"
   :group 'bespoke-modeline-inactive)
 
 (defface bespoke-modeline-inactive-status-**
-  '((t (:inherit mode-line-inactive)))
+  '((t (:foreground "light gray" :background "dark gray" (:line-width 2 :color "dark gray" :style nil))))
   "Modeline face for inactive MODIFIED element"
   :group 'bespoke-modeline-inactive)
+
+
 
 ;;; Modeline Options
 (defcustom bespoke-modeline-position 'top
@@ -1102,7 +1104,9 @@ depending on the version of mu4e."
   :init-value nil
 
   (if bespoke-modeline-mode
-      (bespoke-modeline-mode--activate)
+      (progn
+        ;; (bespoke-modeline--set-line-faces)
+        (bespoke-modeline-mode--activate))
     (bespoke-modeline-mode--deactivate))
 
   ;; Run any registered hooks
@@ -1131,6 +1135,21 @@ Pass `*default*' to select Emacs defaults."
           (load-theme theme t))
       (error nil))))
 
+(defun bespoke-modeline--set-line-faces ()
+  (cond ((and (fboundp 'bespoke-modeline)
+              (eq bespoke-modeline-position 'top))
+         (custom-set-faces
+          ;; '(mode-line-active ((t (:inherit fixed-pitch))))
+          ;; '(header-line ((t (:height 2))))
+          '(mode-line ((t (:height 0.1 :underline "light gray" :overline nil :box nil))))
+          '(mode-line-inactive ((t (:height 0.1 :underline "light gray" :overline nil :box nil))))))
+        ;; Modeline at footer
+        ((and (fboundp 'bespoke-modeline)
+              (eq bespoke-modeline-position 'bottom))
+         (custom-set-faces
+          '(mode-line ((t (:height 1))))
+          '(mode-line-inactive ((t (:height 1))))))))
+
 (defun bespoke-modeline-toggle ()
   "Toggle between a modeline in header or one at footer. Note that
 this function reloads the theme to properly set colors and that
@@ -1141,12 +1160,14 @@ you may need to revert buffers to see the modeline properly."
         (bespoke-modeline-face-clear 'mode-line)
         (setq bespoke-modeline-position 'bottom)
         (bespoke-modeline-mode--deactivate)
+        ;; (bespoke-modeline--set-line-faces)
         (bespoke-modeline-mode--activate)
         (bespoke-modeline-reload-current-theme)
         (run-hooks 'bespoke-modeline-mode-hook))
     (progn
       (setq bespoke-modeline-position 'top)
       (bespoke-modeline-mode--deactivate)
+      ;; (bespoke-modeline--set-line-faces)
       (setq-default mode-line-format (list (propertize "%_" 'face `(:inherit fringe))))
       (bespoke-modeline-mode--activate)
       (bespoke-modeline-reload-current-theme)
