@@ -1,3 +1,6 @@
+*NOTE*: I am no longer actively developing this modeline, though its design is now
+largely incorporated into [[https://github.com/Lambda-Emacs/lambda-line][Lambda-line]].
+
 
 #+ATTR_HTML: :width 85%
 [[file:screenshots/dark-modeline.png]]
