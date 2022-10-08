@@ -461,7 +461,7 @@ modified (⨀)/(**), or read-write (◯)/(RW)"
                                    'bespoke-modeline-inactive-status-RO)))
                          ((string= status bespoke-modeline-tty-mod-symbol)
                           (propertize
-                           (if (window-dedicated-p) " -- " bespoke-modeline-tt-mod-symbol)
+                           (if (window-dedicated-p) " -- " bespoke-modeline-tty-mod-symbol)
                            'face (if active
                                      'bespoke-modeline-active-status-**
                                    'bespoke-modeline-inactive-status-**)))
